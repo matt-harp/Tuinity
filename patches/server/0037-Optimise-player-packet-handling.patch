@@ -10,10 +10,10 @@ one set of variables, so we shouldn't be seeing any more large
 mov vecs.
 
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index d6f4e10b7c0cb7b8f49314ad4a95e0af2fe0dca4..b61d84ef980fff26f6ce6e975a1041ac5191044e 100644
+index 150be74b8b4e970f28d7bea1c363d77d1d215218..52b5cab192bec2d1d266848f9504baec0a933bf0 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
-@@ -1571,6 +1571,20 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -1576,6 +1576,20 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
          this.world = world;
      }
  
