@@ -5,7 +5,7 @@ Subject: [PATCH] Tuinity POM Changes
 
 
 diff --git a/pom.xml b/pom.xml
-index 1ae57e8ab2681e674f97ef3220c5cbf9143c6a7e..d8c0790f302c1087324a0069f3d2029789ec9416 100644
+index e4c63bb76cb598545f9d215a8859724d6e7f8b81..66517f30fc00b86d1e3539e700f8c643aaada85e 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -1,12 +1,11 @@
@@ -46,7 +46,7 @@ index 1ae57e8ab2681e674f97ef3220c5cbf9143c6a7e..d8c0790f302c1087324a0069f3d20297
              <version>${project.version}</version>
              <scope>compile</scope>
          </dependency>
-@@ -159,15 +158,15 @@
+@@ -164,15 +163,15 @@
  
      <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
      <build>

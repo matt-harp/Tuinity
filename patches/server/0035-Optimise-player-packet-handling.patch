@@ -10,10 +10,10 @@ one set of variables, so we shouldn't be seeing any more large
 mov vecs.
 
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index 150be74b8b4e970f28d7bea1c363d77d1d215218..52b5cab192bec2d1d266848f9504baec0a933bf0 100644
+index 37f8547640d7754eafac8e52f91ba7b04c4babcc..9d827d71f3a9735f091e9d7d2188fc1374651878 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
-@@ -1576,6 +1576,20 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -1574,6 +1574,20 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
          this.world = world;
      }
  
@@ -35,10 +35,10 @@ index 150be74b8b4e970f28d7bea1c363d77d1d215218..52b5cab192bec2d1d266848f9504baec
          double d3 = MathHelper.a(d0, -3.0E7D, 3.0E7D);
          double d4 = MathHelper.a(d2, -3.0E7D, 3.0E7D);
 diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index 07a6fc3d88e7d44bfab7f3d6a0eef7dc132ab422..88a29d39ce8960ef1f8d0f457557a8045c44afe0 100644
+index d60f659b368500e3a8c3305f99e60ffc643e2fbd..9898af1ecc4f5553571520a0ae6bad9c773c0fde 100644
 --- a/src/main/java/net/minecraft/server/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/EntityPlayer.java
-@@ -1080,7 +1080,29 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+@@ -1081,7 +1081,29 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
              Entity entity2 = this.getVehicle();
  
              if (entity2 != entity1 && this.playerConnection != null) {
@@ -69,7 +69,7 @@ index 07a6fc3d88e7d44bfab7f3d6a0eef7dc132ab422..88a29d39ce8960ef1f8d0f457557a804
              }
  
              return true;
-@@ -1097,6 +1119,20 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+@@ -1098,6 +1120,20 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
          Entity entity1 = this.getVehicle();
  
          if (entity1 != entity && this.playerConnection != null) {
@@ -482,7 +482,7 @@ index ecf7a8c6d9c2dba0c2463e6d4f3183756921263d..75fe68c3f5cc7bd2e58dda57386087a6
          if (Float.isNaN(f)) {
              f = 0;
 diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index 9b726de6daeba42120f3a948fbdcf080d0e72917..f7f65cc010a257ef6c0b64f4a411ddee33088d60 100644
+index ada082e67ac8a3e79bab5b360f09c9402f683b86..3c83f42f13659b6e4bb95ea09b329b2c76fe68c8 100644
 --- a/src/main/java/net/minecraft/server/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/PlayerList.java
 @@ -696,7 +696,7 @@ public abstract class PlayerList {

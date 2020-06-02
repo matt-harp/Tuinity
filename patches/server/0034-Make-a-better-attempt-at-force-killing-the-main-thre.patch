@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Spottedleaf <spottedleaf@spottedleaf.dev>
+Date: Sat, 23 May 2020 11:57:53 -0700
+Subject: [PATCH] Make a better attempt at force killing the main thread
+
+Single stop calls can be stopped by bad try catches, that do not
+rethrow threaddeath. So try to spam stop for 10s.
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 8ea561d526f255be4059987f137ee9bdbb1f907f..a2ab9d5d4a7458be6155acde5131ad0618c53213 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -730,7 +730,12 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+             hasStopped = true;
+             org.spigotmc.WatchdogThread.doStop(); // Paper
+             if (!isMainThread()) {
+-                this.getThread().stop();
++                // Tuinity start - make a better attempt at stopping
++                long start = System.nanoTime();
++                do {
++                    this.getThread().stop();
++                } while (this.getThread().isAlive() && (System.nanoTime() - start) > (java.util.concurrent.TimeUnit.SECONDS.toNanos(10)));
++                // Tuinity end - make a better attempt at stopping
+             }
+         }
+         // CraftBukkit end
