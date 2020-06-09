@@ -534,10 +534,10 @@ index 455dd1de07cf4ed2b7f41b45e0dec0c86092bc69..a1ba2c076a15e4a312f6192f42ec32b3
          if (Float.isNaN(f)) {
              f = 0;
 diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index 7bb46cc7c6fefc04a8faf7766f31e4780a9c7e10..59e7ead1fbbb76f2b4fa71f6a8c09a887d246c9b 100644
+index c03395ce824ec1305b3cabb63343922d32a02b85..8d69e5e1a2b5db22a234c8c5f2f5dd4983d440fc 100644
 --- a/src/main/java/net/minecraft/server/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/PlayerList.java
-@@ -696,7 +696,7 @@ public abstract class PlayerList {
+@@ -699,7 +699,7 @@ public abstract class PlayerList {
          entityplayer.viewingCredits = false;
          // CraftBukkit end
  
