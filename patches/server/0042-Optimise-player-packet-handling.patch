@@ -50,10 +50,10 @@ index 37f8547640d7754eafac8e52f91ba7b04c4babcc..d2865d83f9a71d0782da28b2c67660c0
          double d3 = MathHelper.a(d0, -3.0E7D, 3.0E7D);
          double d4 = MathHelper.a(d2, -3.0E7D, 3.0E7D);
 diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index c88177b77607519453bb349a8e960d22d73e9f8e..65aeb7164ac1ac58a4846c091d9fcacda20284bf 100644
+index 4ed4ad6bc3b4ab6702ca500dc26e889dca6ed2d7..90a8f088b7ba8614709fa00fae5a7654417cf015 100644
 --- a/src/main/java/net/minecraft/server/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/EntityPlayer.java
-@@ -1090,7 +1090,29 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+@@ -1097,7 +1097,29 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
              Entity entity2 = this.getVehicle();
  
              if (entity2 != entity1 && this.playerConnection != null) {
@@ -84,7 +84,7 @@ index c88177b77607519453bb349a8e960d22d73e9f8e..65aeb7164ac1ac58a4846c091d9fcacd
              }
  
              return true;
-@@ -1107,6 +1129,20 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+@@ -1114,6 +1136,20 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
          Entity entity1 = this.getVehicle();
  
          if (entity1 != entity && this.playerConnection != null) {
@@ -106,7 +106,7 @@ index c88177b77607519453bb349a8e960d22d73e9f8e..65aeb7164ac1ac58a4846c091d9fcacd
          }
  
 diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
-index 455dd1de07cf4ed2b7f41b45e0dec0c86092bc69..043d0298e1b9ffa91a90946b8d842e0f0d9518c9 100644
+index f09b85390745379ddffcfd11501881cf66352ce7..7789f3671437730324b4ad14557069d78bbd24ea 100644
 --- a/src/main/java/net/minecraft/server/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/PlayerConnection.java
 @@ -82,19 +82,9 @@ public class PlayerConnection implements PacketListenerPlayIn {
@@ -579,10 +579,10 @@ index 455dd1de07cf4ed2b7f41b45e0dec0c86092bc69..043d0298e1b9ffa91a90946b8d842e0f
          if (Float.isNaN(f)) {
              f = 0;
 diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index c03395ce824ec1305b3cabb63343922d32a02b85..8d69e5e1a2b5db22a234c8c5f2f5dd4983d440fc 100644
+index 54f6dfcaa7d0dde7b8931609b7e6237c683c5dfa..b199a2a5bbacbd94f8d0a38e43819724fc19ee2f 100644
 --- a/src/main/java/net/minecraft/server/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/PlayerList.java
-@@ -699,7 +699,7 @@ public abstract class PlayerList {
+@@ -698,7 +698,7 @@ public abstract class PlayerList {
          entityplayer.viewingCredits = false;
          // CraftBukkit end
  
