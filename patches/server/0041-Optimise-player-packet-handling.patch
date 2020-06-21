@@ -3,419 +3,39 @@ From: Spottedleaf <spottedleaf@spottedleaf.dev>
 Date: Mon, 11 May 2020 08:38:31 -0700
 Subject: [PATCH] Optimise player packet handling
 
-- Reduce the number of getCubes calls
+Reduce the number of getCubes calls
 
-This patch also fixes position desyncs by moving the code to use
-one set of variables, so we shouldn't be seeing any more large
-mov vecs.
-
-diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index 37f8547640d7754eafac8e52f91ba7b04c4babcc..d2865d83f9a71d0782da28b2c67660c0dc398fa0 100644
---- a/src/main/java/net/minecraft/server/Entity.java
-+++ b/src/main/java/net/minecraft/server/Entity.java
-@@ -1574,6 +1574,35 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
-         this.world = world;
-     }
- 
-+    // Tuinity start
-+    public void setLocationAndBringRootVehicle(double x, double y, double z, float yaw, float pitch) {
-+        this.setLocation(x, y, z, yaw, pitch);
-+        Entity rootVehicle = this.getRootVehicle();
-+        if (rootVehicle == null) {
-+            return;
-+        }
-+
-+        if (rootVehicle.getRidingPassenger() == this) {
-+            rootVehicle.setLocation(x, y, z, rootVehicle.yaw, rootVehicle.pitch);
-+        }
-+    }
-+
-+    public void setLocationAndBringRootVehicleAndPassengers(double x, double y, double z, float yaw, float pitch) {
-+        this.setLocation(x, y, z, yaw, pitch);
-+        Entity rootVehicle = this.getRootVehicle();
-+        if (rootVehicle == null) {
-+            return;
-+        }
-+
-+        if (rootVehicle.getRidingPassenger() == this) {
-+            rootVehicle.setLocation(x, y, z, rootVehicle.yaw, rootVehicle.pitch);
-+            for (Entity passenger : rootVehicle.getAllPassengers()) {
-+                passenger.setLocation(x, y, z, passenger.yaw, passenger.pitch);
-+            }
-+        }
-+    }
-+    // Tuinity end
-+
-     public void setLocation(double d0, double d1, double d2, float f, float f1) {
-         double d3 = MathHelper.a(d0, -3.0E7D, 3.0E7D);
-         double d4 = MathHelper.a(d2, -3.0E7D, 3.0E7D);
-diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index 4ed4ad6bc3b4ab6702ca500dc26e889dca6ed2d7..90a8f088b7ba8614709fa00fae5a7654417cf015 100644
---- a/src/main/java/net/minecraft/server/EntityPlayer.java
-+++ b/src/main/java/net/minecraft/server/EntityPlayer.java
-@@ -1097,7 +1097,29 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
-             Entity entity2 = this.getVehicle();
- 
-             if (entity2 != entity1 && this.playerConnection != null) {
--                this.playerConnection.a(this.locX(), this.locY(), this.locZ(), this.yaw, this.pitch);
-+                // Tuinity start
-+                // force update tracker to prevent client desync
-+                // the player would attempt to move into the ground without this
-+                // but with our more strict collision checking we would stop the movement and print a message to console
-+                // with this change the client does not attempt the move, and it helps make the dismount look smoother...
-+                PlayerChunkMap.EntityTracker tracker = entity1 == null ? null : ((WorldServer)this.world).getChunkProvider().playerChunkMap.trackedEntities.get(entity1.getId());
-+                PlayerChunkMap.EntityTracker tracker1 = entity2 == null ? null : ((WorldServer)this.world).getChunkProvider().playerChunkMap.trackedEntities.get(entity2.getId());
-+                if (tracker != null) {
-+                    tracker.trackerEntry.tick();
-+                }
-+                if (tracker1 != null) {
-+                    tracker1.trackerEntry.tick();
-+                }
-+                // Tuinity end
-+                // Tuinity start - properly teleport player to new location
-+                // Fixes an issue with our implementation of teleport that also brings along the entity.
-+                // So we need to teleport the player to the correct location.
-+                if (entity2 != null) {
-+                    this.playerConnection.teleport(entity2.locX(), entity2.locY(), entity2.locZ(), this.yaw, this.pitch);
-+                } else {
-+                    this.playerConnection.teleport(this.locX(), this.locY(), this.locZ(), this.yaw, this.pitch);
-+                }
-+                // Tuinity end - properly teleport player to new location
-             }
- 
-             return true;
-@@ -1114,6 +1136,20 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
-         Entity entity1 = this.getVehicle();
- 
-         if (entity1 != entity && this.playerConnection != null) {
-+            // Tuinity start
-+            // force update tracker to prevent client desync
-+            // the player would attempt to move into the ground without this
-+            // but with our more strict collision checking we would stop the movement and print a message to console
-+            // with this change the client does not attempt the move, and it helps make the dismount look smoother...
-+            PlayerChunkMap.EntityTracker tracker = entity == null ? null : ((WorldServer)this.world).getChunkProvider().playerChunkMap.trackedEntities.get(entity.getId());
-+            PlayerChunkMap.EntityTracker tracker1 = entity1 == null ? null : ((WorldServer)this.world).getChunkProvider().playerChunkMap.trackedEntities.get(entity1.getId());
-+            if (tracker != null) {
-+                tracker.trackerEntry.tick();
-+            }
-+            if (tracker1 != null) {
-+                tracker1.trackerEntry.tick();
-+            }
-+            // Tuinity end
-             this.playerConnection.a(this.locX(), this.locY(), this.locZ(), this.yaw, this.pitch);
-         }
- 
 diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
-index 1859cd296bbe0ea12cd32366e84ce31caf71d9a3..bf3d0d7975d4677c12d2202c6aa34f94e39f2f06 100644
+index 1859cd296bbe0ea12cd32366e84ce31caf71d9a3..c55721f873a5765c98b0d4ce378c1677adb55970 100644
 --- a/src/main/java/net/minecraft/server/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/PlayerConnection.java
-@@ -82,19 +82,9 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -82,9 +82,9 @@ public class PlayerConnection implements PacketListenerPlayIn {
      // CraftBukkit end
      private int j;
      private final Int2ShortMap k = new Int2ShortOpenHashMap();
 -    private double l;
 -    private double m;
 -    private double n;
--    private double o;
--    private double p;
--    private double q;
-+    // Tuinity - replace with just one last pos set
-     private Entity r;
--    private double s;
--    private double t;
--    private double u;
--    private double v;
--    private double w;
--    private double x;
-+    // Tuinity - replace with just one last pos set
-     private Vec3D teleportPos;
-     private int teleportAwait;
-     private int A;
-@@ -137,6 +127,42 @@ public class PlayerConnection implements PacketListenerPlayIn {
++    private double l; private double getLastPosX() { return this.l; } // Tuinity - OBFHELPER
++    private double m; private double getLastPosY() { return this.m; } // Tuinity - OBFHELPER
++    private double n; private double getLastPosZ() { return this.n; } // Tuinity - OBFHELPER
+     private double o;
+     private double p;
+     private double q;
+@@ -137,6 +137,12 @@ public class PlayerConnection implements PacketListenerPlayIn {
      private boolean justTeleported = false;
      private boolean hasMoved; // Spigot
  
-+    // Tuinity start - replace last position tracking with just one pos set
-+    // this is used to enforce our variable state we have set here
-+    // if this isn't set in a move call (entity/player), then we force teleport the player/entity to where
-+    // they currently are.
-+    // After the player sends the teleport accept packet, only then this variable is updated to prevent
-+    // some sort of desync (the corresponding lastClient and lastClientFromLastTick fields are also updated)
-+    // This should ensure the variable set below is always valid.
-+    boolean hasLastClientBeenSet = false;
-+
-+    double lastClientX;
-+    double lastClientY;
-+    double lastClientZ;
-+
-+    // we use these variables to control speed effectively, as this defends against clients simply splitting up
-+    // their move packets (as lastClientX is updated after each move packet)
-+    double lastClientXFromLastTick;
-+    double lastClientYFromLastTick;
-+    double lastClientZFromLastTick;
-+
-+    void setLastTickedClientPos(double x, double y, double z) {
-+        this.lastClientXFromLastTick = x;
-+        this.lastClientYFromLastTick = y;
-+        this.lastClientZFromLastTick = z;
-+    }
-+
-+    void setLastClientPos(double x, double y, double z) {
-+        this.lastClientX = x;
-+        this.lastClientY = y;
-+        this.lastClientZ = z;
-+    }
-+
++    // Tuinity start - optimise packet checking collisions
 +    static boolean isCollidingAt(Entity enitty, double x, double y, double z) {
 +        return ((WorldServer)enitty.world).hasAnyCollisions(enitty, enitty.getBoundingBoxAt(x, y, z).shrink(1/16.0));
 +    }
-+    // Tuinity end - replace last position tracking with just one pos set
++    // Tuinity end - optimise packet checking collisions
 +
      public CraftPlayer getPlayer() {
          return (this.player == null) ? null : (CraftPlayer) this.player.getBukkitEntity();
      }
-@@ -153,11 +179,46 @@ public class PlayerConnection implements PacketListenerPlayIn {
-         if (this.player.valid) {
-         // Paper end
-         this.syncPosition();
--        this.player.lastX = this.player.locX();
--        this.player.lastY = this.player.locY();
--        this.player.lastZ = this.player.locZ();
-+        // Tuinity start
-+        double lastX = this.player.lastX = this.player.locX();
-+        double lastY = this.player.lastY = this.player.locY();
-+        double lastZ = this.player.lastZ = this.player.locZ();
-+        // Tuinity end
-         this.player.playerTick();
--        this.player.setLocation(this.l, this.m, this.n, this.player.yaw, this.player.pitch);
-+        // Tuinity start
-+        if (this.teleportPos != null) {
-+            // make sure we're still at the teleport pos
-+            this.player.setLocationAndBringRootVehicle(this.teleportPos.x, this.teleportPos.y, this.teleportPos.z, this.player.yaw, this.player.pitch);
-+        } else {
-+            Entity vehicle = this.player.getVehicle();
-+            if (vehicle != null) {
-+                if (this.player.getVehicle().getRidingPassenger() == this.player && this.hasLastClientBeenSet) {
-+                    // we are controlling. so bring the vehicle to OUR pos
-+                    // also bring along our passengers. should help prevent pos desync in boats
-+                    this.player.setLocationAndBringRootVehicleAndPassengers(this.lastClientX, this.lastClientY, this.lastClientZ, this.player.yaw, this.player.pitch);
-+                } else {
-+                    // vehicle is controlling us. bring us to THEIR pos
-+
-+                    this.hasLastClientBeenSet = false;
-+                    // we know now that there is desync. setting hasLastClientBeenSet wont teleport the player, as
-+                    // we know the vehicle move code is going to ignore moves if the riding passenger doesn't match,
-+                    // and regular move (packetplayinflying) will ignore moves if the player is a passenger (vehicle != null)
-+                    // by setting hasLastClientBeenSet, we enforce that a synchronisation of pos should happen if
-+                    // any of the move packets actually pass the checks mentioned above
-+
-+                    this.player.setLocation(vehicle.locX(), vehicle.locY(), vehicle.locZ(), this.player.yaw, this.player.pitch);
-+                }
-+            } else {
-+                // no vehicle. just bring us to our last pos
-+                if (this.hasLastClientBeenSet) {
-+                    this.player.setLocation(this.lastClientX, this.lastClientY, this.lastClientZ, this.player.yaw, this.player.pitch);
-+                } else {
-+                    this.player.setLocation(lastX, lastY, lastZ, this.player.yaw, this.player.pitch);
-+                }
-+            }
-+            this.setLastTickedClientPos(this.lastClientX, this.lastClientY, this.lastClientZ);
-+        }
-+        // Tuinity end
-         ++this.e;
-         this.processedMovePackets = this.receivedMovePackets;
-         if (this.B && !this.player.isSleeping()) { // Paper - #3176 Allow sleeping players to float
-@@ -173,12 +234,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
- 
-         this.r = this.player.getRootVehicle();
-         if (this.r != this.player && this.r.getRidingPassenger() == this.player) {
--            this.s = this.r.locX();
--            this.t = this.r.locY();
--            this.u = this.r.locZ();
--            this.v = this.r.locX();
--            this.w = this.r.locY();
--            this.x = this.r.locZ();
-+            // Tuinity - replace with just one last pos
-             if (this.D && this.player.getRootVehicle().getRidingPassenger() == this.player) {
-                 if (++this.E > 80) {
-                     PlayerConnection.LOGGER.warn("{} was kicked for floating a vehicle too long!", this.player.getDisplayName().getString());
-@@ -240,12 +296,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
-     }
- 
-     public void syncPosition() {
--        this.l = this.player.locX();
--        this.m = this.player.locY();
--        this.n = this.player.locZ();
--        this.o = this.player.locX();
--        this.p = this.player.locY();
--        this.q = this.player.locZ();
-+        // Tuinity - replaced with just one var set
-     }
- 
-     @Override
-@@ -331,10 +382,21 @@ public class PlayerConnection implements PacketListenerPlayIn {
-                 double d5 = packetplayinvehiclemove.getZ();double toZ = d5; // Tuinity - OBFHELPER
-                 float f = packetplayinvehiclemove.getYaw();
-                 float f1 = packetplayinvehiclemove.getPitch();
--                double d6 = d3 - this.s;
--                double d7 = d4 - this.t;
--                double d8 = d5 - this.u;
-+                // Tuinity start - replace with just one var set
-+                double d6 = d3 - this.lastClientXFromLastTick;
-+                double d7 = d4 - this.lastClientYFromLastTick;
-+                double d8 = d5 - this.lastClientZFromLastTick;
-+                // Tuinity end - replace with just one var set
-                 double d9 = entity.getMot().g();
-+                // Tuinity start - replace with just one var set
-+                if (this.teleportPos != null) {
-+                    return;
-+                }
-+                if (!this.hasLastClientBeenSet) {
-+                    this.teleport(fromX, fromY, fromZ, this.player.yaw, this.player.pitch);
-+                    return;
-+                }
-+                // Tuinity end - replace with just one var set
-                 // Tuinity start - fix large move vectors killing the server
-                 double currDeltaX = toX - fromX;
-                 double currDeltaY = toY - fromY;
-@@ -370,9 +432,9 @@ public class PlayerConnection implements PacketListenerPlayIn {
- 
-                 // Paper start - Prevent moving into unloaded chunks
-                 if (player.world.paperConfig.preventMovingIntoUnloadedChunks // Tuinity - improve this check
--                        && (!worldserver.areChunksLoadedForMove(this.player.getBoundingBoxAt(this.player.locX(), this.player.locY(), this.player.locZ()).expand(toX - this.player.locX(), toY - this.player.locY(), toZ - this.player.locZ()))) // Tuinity - improve this check
--                    || !worldserver.areChunksLoadedForMove(entity.getBoundingBoxAt(entity.locX(), entity.locY(), entity.locZ()).expand(toX - entity.locX(), toY - entity.locY(), toZ - entity.locZ()))) { // Tuinity - improve this check
--                    this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity));
-+                        && (!worldserver.areChunksLoadedForMove(this.player.getBoundingBoxAt(this.lastClientX, this.lastClientY, this.lastClientZ).expand(toX - this.lastClientX, toY - this.lastClientY, toZ - this.lastClientZ)) // Tuinity - improve this check
-+                        || !worldserver.areChunksLoadedForMove(entity.getBoundingBoxAt(this.lastClientX, this.lastClientY, this.lastClientZ).expand(toX - this.lastClientX, toY - this.lastClientY, toZ - this.lastClientZ)))) { // Tuinity - improve this check
-+                    this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity)); this.teleport(fromX, fromY, fromZ, this.player.yaw, this.player.pitch); // Tuinity
-                     return;
-                 }
-                 // Paper end
-@@ -380,15 +442,29 @@ public class PlayerConnection implements PacketListenerPlayIn {
-                 if (d10 - d9 > Math.max(100.0D, Math.pow((double) (org.spigotmc.SpigotConfig.movedTooQuicklyMultiplier * (float) i * speed), 2)) && !this.isExemptPlayer()) {
-                 // CraftBukkit end
-                     PlayerConnection.LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getDisplayName().getString(), this.player.getDisplayName().getString(), d6, d7, d8);
--                    this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity));
-+                    this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity)); this.teleport(fromX, fromY, fromZ, this.player.yaw, this.player.pitch); // Tuinity
-                     return;
-                 }
- 
--                boolean flag = worldserver.getCubes(entity, entity.getBoundingBox().shrink(0.0625D));
--
--                d6 = d3 - this.v;
--                d7 = d4 - this.w - 1.0E-6D;
--                d8 = d5 - this.x;
-+                // Tuinity - not needed anymore
-+
-+                // Tuinity start - replace with just one var set
-+                d6 = d3 - this.lastClientX;
-+                d7 = d4 - this.lastClientY - 1.0E-6D;
-+                d8 = d5 - this.lastClientZ;
-+                // Tuinity end - replace with just one var set
-+                // Tuinity start - optimise player move packet handling
-+                double clientDiffX = toX - this.lastClientX;
-+                double clientDiffY = toY - this.lastClientY;
-+                double clientDiffZ = toZ - this.lastClientZ;
-+
-+                entity.setPosition(this.lastClientX, this.lastClientY, this.lastClientZ);
-+                Vec3D clientMove = new Vec3D(clientDiffX, clientDiffY, clientDiffZ);
-+                Vec3D collision = entity.performCollision(clientMove, 0.0625);
-+                boolean collided = !clientMove.equals(collision);
-+
-+                entity.setPosition(fromX, fromY, fromZ);
-+                // Tuinity end - optimise player move packet handling
-                 entity.move(EnumMoveType.PLAYER, new Vec3D(d6, d7, d8));
-                 double d11 = d7;
- 
-@@ -400,22 +476,44 @@ public class PlayerConnection implements PacketListenerPlayIn {
- 
-                 d8 = d5 - entity.locZ();
-                 d10 = d6 * d6 + d7 * d7 + d8 * d8;
--                boolean flag1 = false;
--
--                if (d10 > org.spigotmc.SpigotConfig.movedWronglyThreshold) { // Spigot
--                    flag1 = true;
--                    PlayerConnection.LOGGER.warn(entity.getName() + " (vehicle of " + this.player.getName() + ") moved wrongly!"); // Paper - More informative
--                }
-+                // Tuinity - no longer needed
-                 Location curPos = this.getPlayer().getLocation(); // Spigot
- 
-                 entity.setLocation(d3, d4, d5, f, f1);
--                player.setLocation(d3, d4, d5, this.player.yaw, this.player.pitch); // CraftBukkit
--                boolean flag2 = worldserver.getCubes(entity, entity.getBoundingBox().shrink(0.0625D));
-+                this.player.setLocationAndBringRootVehicle(d3, d4, d5, this.player.yaw, this.player.pitch); // Tuinity - force set positions
-+
-+                // Tuinity start - optimise move packet handling
-+                if (collided) {
-+                    boolean allowed = d11 < org.spigotmc.SpigotConfig.movedWronglyThreshold;
-+
-+                    if (allowed) {
-+                        WorldServer world = ((WorldServer)entity.world);
-+
-+                        AxisAlignedBB collisionBoxBefore = entity.getBoundingBoxAt(this.lastClientX, this.lastClientY, this.lastClientZ).shrink(0.0625);
-+                        AxisAlignedBB collisionBoxAfter = entity.getBoundingBoxAt(toX, toY, toZ).shrink(0.0625);
-+
-+                        // do not allow moving into NEW blocks.
-+                        java.util.List<AxisAlignedBB> collisionsAfter = new java.util.ArrayList<>(6);
-+                        world.getCollisions(entity, collisionBoxAfter, collisionsAfter, false);
-+
-+                        for (int index = 0, len = collisionsAfter.size(); index < len; ++index) {
-+                            AxisAlignedBB box = collisionsAfter.get(index);
-+                            if (!box.intersects(collisionBoxBefore)) {
-+                                // weren't colliding before. not allowed
-+                                allowed = false;
-+                                break;
-+                            }
-+                        }
-+                    }
- 
--                if (flag && (flag1 || !flag2)) {
--                    entity.setLocation(d0, d1, d2, f, f1);
--                    player.setLocation(d0, d1, d2, this.player.yaw, this.player.pitch); // CraftBukkit
--                    this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity));
-+                    if (!allowed) {
-+                        PlayerConnection.LOGGER.warn(entity.getName() + " (vehicle of " + this.player.getName() + ") moved wrongly! Was colliding: " + isCollidingAt(entity, this.lastClientX, this.lastClientY, this.lastClientZ) + ", is colliding: " + isCollidingAt(entity, toX, toY, toZ)); // Paper - More informative // Tuinity
-+                        this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity));
-+                        entity.setLocation(d0, d1, d2, f, f1);
-+                        this.player.setLocationAndBringRootVehicle(d0, d1, d2, this.player.yaw, this.player.pitch); //  force update lastClient pos
-+                        this.teleport(d0, d1, d2, this.player.yaw, this.player.pitch); // force update lastClient pos
-+                    }
-+                    // Tuinity end - optimise move packet handling
-                     return;
-                 }
- 
-@@ -489,9 +587,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
-                 this.player.getWorldServer().getChunkProvider().movePlayer(this.player);
-                 this.player.checkMovement(this.player.locX() - d0, this.player.locY() - d1, this.player.locZ() - d2);
-                 this.D = d11 >= -0.03125D && !this.minecraftServer.getAllowFlight() && !worldserver.b(entity.getBoundingBox().g(0.0625D).b(0.0D, -0.55D, 0.0D));
--                this.v = entity.locX();
--                this.w = entity.locY();
--                this.x = entity.locZ();
-+                this.setLastClientPos(toX, toY, toZ); // Tuinity
-             }
- 
-         }
-@@ -501,15 +597,15 @@ public class PlayerConnection implements PacketListenerPlayIn {
-     public void a(PacketPlayInTeleportAccept packetplayinteleportaccept) {
-         PlayerConnectionUtils.ensureMainThread(packetplayinteleportaccept, this, this.player.getWorldServer());
-         if (packetplayinteleportaccept.b() == this.teleportAwait && this.teleportPos != null) { // CraftBukkit
--            this.player.setLocation(this.teleportPos.x, this.teleportPos.y, this.teleportPos.z, this.player.yaw, this.player.pitch);
--            this.o = this.teleportPos.x;
--            this.p = this.teleportPos.y;
--            this.q = this.teleportPos.z;
-+            this.player.setLocationAndBringRootVehicle(this.teleportPos.x, this.teleportPos.y, this.teleportPos.z, this.player.yaw, this.player.pitch); // Tuinity
-             this.syncPosition(); // Paper
-             if (this.player.H()) {
-                 this.player.I();
-             }
- 
-+            this.setLastClientPos(this.teleportPos.x, this.teleportPos.y, this.teleportPos.z); // Tuinity
-+            this.setLastTickedClientPos(this.teleportPos.x, this.teleportPos.y, this.teleportPos.z); // Tuinity
-+            this.hasLastClientBeenSet = true; // Tuinity
-             this.teleportPos = null;
-             this.player.getWorldServer().getChunkProvider().movePlayer(this.player); // CraftBukkit
-         }
-@@ -964,7 +1060,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -964,7 +970,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
                  }
  
                  if (this.teleportPos != null) {
@@ -424,44 +44,7 @@ index 1859cd296bbe0ea12cd32366e84ce31caf71d9a3..bf3d0d7975d4677c12d2202c6aa34f94
                          this.A = this.e;
                          this.a(this.teleportPos.x, this.teleportPos.y, this.teleportPos.z, this.player.yaw, this.player.pitch);
                      }
-@@ -976,6 +1072,12 @@ public class PlayerConnection implements PacketListenerPlayIn {
-                         this.player.getWorldServer().getChunkProvider().movePlayer(this.player);
-                         this.allowedPlayerTicks = 20; // CraftBukkit
-                     } else {
-+                        // Tuinity start - enforce that las client pos is set
-+                        if (!this.hasLastClientBeenSet) {
-+                            this.teleport(this.player.locX(), this.player.locY(), this.player.locZ(), this.player.yaw, this.player.pitch);
-+                            return;
-+                        }
-+                        // Tuinity end - enforce that las client pos is set
-                         // CraftBukkit - Make sure the move is valid but then reset it for plugins to modify
-                         double prevX = player.locX();
-                         double prevY = player.locY();
-@@ -992,9 +1094,11 @@ public class PlayerConnection implements PacketListenerPlayIn {
-                         double d6 = packetplayinflying.c(this.player.locZ());double toZ = d6; // Paper - OBFHELPER
-                         float f = packetplayinflying.a(this.player.yaw);
-                         float f1 = packetplayinflying.b(this.player.pitch);
--                        double d7 = d4 - this.l;
--                        double d8 = d5 - this.m;
--                        double d9 = d6 - this.n;
-+                        // Tuinity start - use only one set of variables
-+                        double d7 = d4 - this.lastClientXFromLastTick;
-+                        double d8 = d5 - this.lastClientYFromLastTick;
-+                        double d9 = d6 - this.lastClientZFromLastTick;
-+                        // Tuinity end - use only one set of variables
-                         double d10 = this.player.getMot().g();
-                         // Tuinity start - fix large move vectors killing the server
-                         double currDeltaX = toX - prevX;
-@@ -1034,7 +1138,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
-                                 speed = player.abilities.walkSpeed * 10f;
-                             }
-                             // Paper start - Prevent moving into unloaded chunks
--                            if (player.world.paperConfig.preventMovingIntoUnloadedChunks && !((WorldServer)this.player.world).areChunksLoadedForMove(this.player.getBoundingBoxAt(this.player.locX(), this.player.locY(), this.player.locZ()).expand(toX - this.player.locX(), toY - this.player.locY(), toZ - this.player.locZ()))) { // Paper - use getIfLoadedImmediately // Tuinity - improve this check
-+                            if (player.world.paperConfig.preventMovingIntoUnloadedChunks && !worldserver.areChunksLoadedForMove(this.player.getBoundingBoxAt(this.lastClientX, this.lastClientY, this.lastClientZ).expand(toX - this.lastClientX, toY - this.lastClientY, toZ - this.lastClientZ))) { // Paper - use getIfLoadedImmediately // Tuinity - improve this check
-                                 this.internalTeleport(this.player.locX(), this.player.locY(), this.player.locZ(), this.player.yaw, this.player.pitch, Collections.emptySet());
-                                 return;
-                             }
-@@ -1051,11 +1155,13 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -1051,11 +1057,11 @@ public class PlayerConnection implements PacketListenerPlayIn {
                                  }
                              }
  
@@ -471,33 +54,27 @@ index 1859cd296bbe0ea12cd32366e84ce31caf71d9a3..bf3d0d7975d4677c12d2202c6aa34f94
 -                            d7 = d4 - this.o;
 -                            d8 = d5 - this.p;
 -                            d9 = d6 - this.q;
-+                            // Tuinity start - use only one set of variables
-+                            d7 = d4 - this.lastClientX;
-+                            d8 = d5 - this.lastClientY;
-+                            d9 = d6 - this.lastClientZ;
-+                            // Tuinity end - use only one set of variables
++                            d7 = d4 - this.getLastPosX(); // Tuinity
++                            d8 = d5 - this.getLastPosY(); // Tuinity
++                            d9 = d6 - this.getLastPosZ(); // Tuinity
                              if (d8 > 0.0D) {
                                  this.player.fallDistance = 0.0F;
                              }
-@@ -1097,6 +1203,17 @@ public class PlayerConnection implements PacketListenerPlayIn {
-                                 return; // ... thanks Mojang for letting move calls teleport across dimensions.
+@@ -1091,7 +1097,13 @@ public class PlayerConnection implements PacketListenerPlayIn {
+                                 // Paper end
                              }
-                             // Paper end - prevent position desync
+ 
 +                            // Tuinity start - optimise player move packet handling
-+                            double clientDiffX = toX - this.lastClientX;
-+                            double clientDiffY = toY - this.lastClientY;
-+                            double clientDiffZ = toZ - this.lastClientZ;
-+
-+                            this.player.setPosition(this.lastClientX, this.lastClientY, this.lastClientZ);
 +                            this.player.requiredRelaxedCollisionCheck = true;
-+                            this.player.move(EnumMoveType.PLAYER, new Vec3D(clientDiffX, clientDiffY, clientDiffZ));
++                            this.player.setPosition(this.getLastPosX(), this.getLastPosY(), this.getLastPosZ());
+                             this.player.move(EnumMoveType.PLAYER, new Vec3D(d7, d8, d9));
 +                            this.player.requiredRelaxedCollisionCheck = false;
 +                            boolean collided = this.player.collidedOnSomething;
 +                            // Tuinity end - optimise player move packet handling
-                             this.player.onGround = packetplayinflying.b();
-                             double d12 = d8;
- 
-@@ -1108,23 +1225,40 @@ public class PlayerConnection implements PacketListenerPlayIn {
+                             // Paper start - prevent position desync
+                             if (this.teleportPos != null) {
+                                 return; // ... thanks Mojang for letting move calls teleport across dimensions.
+@@ -1108,23 +1120,40 @@ public class PlayerConnection implements PacketListenerPlayIn {
  
                              d9 = d6 - this.player.locZ();
                              d11 = d7 * d7 + d8 * d8 + d9 * d9;
@@ -520,7 +97,7 @@ index 1859cd296bbe0ea12cd32366e84ce31caf71d9a3..bf3d0d7975d4677c12d2202c6aa34f94
 +                                if (allowed) {
 +                                    WorldServer world = ((WorldServer)this.player.world);
 +
-+                                    AxisAlignedBB collisionBoxBefore = this.player.getBoundingBoxAt(this.lastClientX, this.lastClientY, this.lastClientZ).shrink(0.0625);
++                                    AxisAlignedBB collisionBoxBefore = this.player.getBoundingBoxAt(this.getLastPosX(), this.getLastPosY(), this.getLastPosZ()).shrink(0.0625);
 +                                    AxisAlignedBB collisionBoxAfter = this.player.getBoundingBoxAt(toX, toY, toZ).shrink(0.0625);
 +
 +                                    // do not allow moving into NEW blocks.
@@ -540,7 +117,7 @@ index 1859cd296bbe0ea12cd32366e84ce31caf71d9a3..bf3d0d7975d4677c12d2202c6aa34f94
 -                                if (flag && (flag1 || !flag2)) {
 -                                    this.a(d0, d1, d2, f, f1);
 +                                if (!allowed) {
-+                                    PlayerConnection.LOGGER.warn("{} moved wrongly! Was colliding: " + isCollidingAt(this.player, this.lastClientX, this.lastClientY, this.lastClientZ) + ", is colliding: " + isCollidingAt(this.player, toX, toY, toZ), this.player.getDisplayName().getString());
++                                    PlayerConnection.LOGGER.warn("{} moved wrongly! Was colliding: " + isCollidingAt(this.player, this.getLastPosX(), this.getLastPosY(), this.getLastPosZ()) + ", is colliding: " + isCollidingAt(this.player, toX, toY, toZ), this.player.getDisplayName().getString());
 +                                    this.teleport(d0, d1, d2, f, f1);
                                      return;
                                  }
@@ -549,18 +126,7 @@ index 1859cd296bbe0ea12cd32366e84ce31caf71d9a3..bf3d0d7975d4677c12d2202c6aa34f94
  
                              // CraftBukkit start - fire PlayerMoveEvent
                              // Rest to old location first
-@@ -1194,9 +1328,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
-                             this.player.onGround = packetplayinflying.b();
-                             this.player.getWorldServer().getChunkProvider().movePlayer(this.player);
-                             this.player.a(this.player.locY() - d3, packetplayinflying.b());
--                            this.o = this.player.locX();
--                            this.p = this.player.locY();
--                            this.q = this.player.locZ();
-+                            this.setLastClientPos(toX, toY, toZ); // Tuinity
-                         }
-                     }
-                 }
-@@ -1208,6 +1340,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -1208,6 +1237,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
          return iworldreader.getCubes(this.player, this.player.getBoundingBox().shrink(9.999999747378752E-6D));
      }
  
@@ -568,24 +134,3 @@ index 1859cd296bbe0ea12cd32366e84ce31caf71d9a3..bf3d0d7975d4677c12d2202c6aa34f94
      public void a(double d0, double d1, double d2, float f, float f1) {
          this.a(d0, d1, d2, f, f1, Collections.<PacketPlayOutPosition.EnumPlayerTeleportFlags>emptySet());
      }
-@@ -1264,6 +1397,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
-             LOGGER.info("Attempt to teleport dead player {} restricted", player.getName());
-             return;
-         }
-+        this.hasLastClientBeenSet = false; // Tuinity - will get set to true on teleport accept
-         // CraftBukkit start
-         if (Float.isNaN(f)) {
-             f = 0;
-diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index 54f6dfcaa7d0dde7b8931609b7e6237c683c5dfa..b199a2a5bbacbd94f8d0a38e43819724fc19ee2f 100644
---- a/src/main/java/net/minecraft/server/PlayerList.java
-+++ b/src/main/java/net/minecraft/server/PlayerList.java
-@@ -698,7 +698,7 @@ public abstract class PlayerList {
-         entityplayer.viewingCredits = false;
-         // CraftBukkit end
- 
--        entityplayer1.playerConnection = entityplayer.playerConnection;
-+        entityplayer1.playerConnection = entityplayer.playerConnection; entityplayer1.playerConnection.hasLastClientBeenSet = false; // Tuinity - ensure the client pos is correctly set on world change
-         entityplayer1.copyFrom(entityplayer, flag);
-         entityplayer1.e(entityplayer.getId());
-         entityplayer1.a(entityplayer.getMainHand());
