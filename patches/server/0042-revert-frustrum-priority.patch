@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Spottedleaf <spottedleaf@spottedleaf.dev>
+Date: Sun, 21 Jun 2020 18:11:14 -0700
+Subject: [PATCH] revert frustrum priority
+
+
+diff --git a/src/main/java/net/minecraft/server/ChunkMapDistance.java b/src/main/java/net/minecraft/server/ChunkMapDistance.java
+index 26994b4780575468a1f937925b10db04042ab074..773633ed261af9b2f0eff50c478a4855a2310d77 100644
+--- a/src/main/java/net/minecraft/server/ChunkMapDistance.java
++++ b/src/main/java/net/minecraft/server/ChunkMapDistance.java
+@@ -571,26 +571,24 @@ public abstract class ChunkMapDistance {
+                 Ticket<?> ticket = new Ticket<>(TicketType.PLAYER, 33, new ChunkCoordIntPair(i)); // Paper - no-tick view distance
+ 
+                 if (flag1) {
+-                    // Paper start - smarter ticket delay based on frustum and distance
+-                    scheduleChunkLoad(i, MinecraftServer.currentTick, j, (priority) -> {
+-                        //ChunkMapDistance.this.j.a(ChunkTaskQueueSorter.a(() -> { // CraftBukkit - decompile error
+-                            if (this.c(this.c(i))) { // Copy c(c()) stuff below
+-                                // Paper end
++                    ChunkMapDistance.this.j.a(ChunkTaskQueueSorter.a(() -> { // CraftBukkit - decompile error
++                        ChunkMapDistance.this.m.execute(() -> {
++                            if (this.c(this.c(i))) {
+                                 ChunkMapDistance.this.addTicket(i, ticket);
+                                 ChunkMapDistance.this.l.add(i);
+                             } else {
+                                 ChunkMapDistance.this.k.a(ChunkTaskQueueSorter.a(() -> { // CraftBukkit - decompile error
+                                 }, i, false));
+                             }
+-                    //}, i, () -> {
+-                        //return Math.min(PlayerChunkMap.GOLDEN_TICKET, (priority <= 6 ? 20 : 30) + priority); // Paper - delay new ticket adds to avoid spamming the queue
+-                    //})); // Paper
+-                    }); // Paper
++
++                        });
++                    }, i, () -> {
++                        return j;
++                    }));
+                 } else {
+                     ChunkMapDistance.this.k.a(ChunkTaskQueueSorter.a(() -> { // CraftBukkit - decompile error
+                         ChunkMapDistance.this.m.execute(() -> {
+                             ChunkMapDistance.this.removeTicket(i, ticket);
+-                            ChunkMapDistance.this.clearPriorityTickets(new ChunkCoordIntPair(i)); // Paper
+                         });
+                     }, i, true));
+                 }
