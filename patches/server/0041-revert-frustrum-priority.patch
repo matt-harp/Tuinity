@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Spottedleaf <spottedleaf@spottedleaf.dev>
+Date: Sun, 21 Jun 2020 18:11:14 -0700
+Subject: [PATCH] revert frustrum priority
+
+
+diff --git a/src/main/java/net/minecraft/server/ChunkMapDistance.java b/src/main/java/net/minecraft/server/ChunkMapDistance.java
+index e0378f486c5d191d55114701d4d519e0d0af5726..aa5a531b2886e0bee378499d7561d1420186d605 100644
+--- a/src/main/java/net/minecraft/server/ChunkMapDistance.java
++++ b/src/main/java/net/minecraft/server/ChunkMapDistance.java
+@@ -590,51 +590,27 @@ public abstract class ChunkMapDistance {
+ 
+         private void a(long i, int j, boolean flag, boolean flag1) {
+             if (flag != flag1) {
+-                ChunkCoordIntPair coords = new ChunkCoordIntPair(i); // Paper
+-                Ticket<?> ticket = new Ticket<>(TicketType.PLAYER, 33, coords); // Paper - no-tick view distance
++                Ticket<?> ticket = new Ticket<>(TicketType.PLAYER, 33, new ChunkCoordIntPair(i)); // Paper - no-tick view distance
+ 
+                 if (flag1) {
+-                    scheduleChunkLoad(i, MinecraftServer.currentTick, j, (priority) -> { // Paper - smarter ticket delay based on frustum and distance
+-                    // Paper start - recheck its still valid if not cancel
+-                    if (!isChunkInRange(i)) {
+-                        ChunkMapDistance.this.k.a(ChunkTaskQueueSorter.a(() -> {
+-                            ChunkMapDistance.this.m.execute(() -> {
+-                                ChunkMapDistance.this.removeTicket(i, ticket);
+-                                ChunkMapDistance.this.clearPriorityTickets(coords);
+-                            });
+-                        }, i, false));
+-                        return;
+-                    }
+-                    // abort early if we got a ticket already
+-                    if (hasPlayerTicket(coords, 33)) return;
+-                    // skip player ticket throttle for near chunks
+-                    if (priority <= 3) {
+-                        ChunkMapDistance.this.addTicket(i, ticket);
+-                        ChunkMapDistance.this.l.add(i);
+-                        return;
+-                    }
+-                    // Paper end
+                     ChunkMapDistance.this.j.a(ChunkTaskQueueSorter.a(() -> { // CraftBukkit - decompile error
+                         ChunkMapDistance.this.m.execute(() -> {
+-                            if (isChunkInRange(i)) { if (!hasPlayerTicket(coords, 33)) { // Paper - high priority might of already added it
++                            if (this.c(this.c(i))) {
+                                 ChunkMapDistance.this.addTicket(i, ticket);
+                                 ChunkMapDistance.this.l.add(i);
+-                            }
+-                            } else { // Paper
++                            } else {
+                                 ChunkMapDistance.this.k.a(ChunkTaskQueueSorter.a(() -> { // CraftBukkit - decompile error
+                                 }, i, false));
+                             }
+ 
+                         });
+                     }, i, () -> {
+-                        return Math.min(PlayerChunkMap.GOLDEN_TICKET, priority); // Paper
++                        return j;
+                     }));
+-                    }); // Paper
+                 } else {
+                     ChunkMapDistance.this.k.a(ChunkTaskQueueSorter.a(() -> { // CraftBukkit - decompile error
+                         ChunkMapDistance.this.m.execute(() -> {
+                             ChunkMapDistance.this.removeTicket(i, ticket);
+-                            ChunkMapDistance.this.clearPriorityTickets(coords); // Paper
+                         });
+                     }, i, true));
+                 }
