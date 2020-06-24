@@ -6,7 +6,7 @@ Subject: [PATCH] Optimise player packet handling
 Reduce the number of getCubes calls
 
 diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
-index 214d2466471e18968b6f33094462154232157b96..1750088dabefd1b1c0d86bb733f3cebe1b95330f 100644
+index e0da3a13b987a6c20d4745430b11534f5f9833d1..df0a758fade28ef81de761074f3b7c46bd34e609 100644
 --- a/src/main/java/net/minecraft/server/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/PlayerConnection.java
 @@ -82,9 +82,9 @@ public class PlayerConnection implements PacketListenerPlayIn {
