@@ -1,0 +1,108 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Mon, 29 Jun 2020 12:20:44 -0500
+Subject: [PATCH] POM and config changes
+
+
+diff --git a/pom.xml b/pom.xml
+index d4cb89c0ed9b25c4babd40e1a4cbdc8926870d1d..d617d9003c76ac23eb006db0e48d5c85580e3478 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -164,7 +164,7 @@
+ 
+     <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
+     <build>
+-        <finalName>paper-${minecraft.version}</finalName>
++        <finalName>tuinity-${minecraft.version}</finalName>
+         <defaultGoal>clean install</defaultGoal> <!-- Paper -->
+         <plugins>
+             <plugin>
+diff --git a/src/main/java/co/chaoticpvp/ChaosConfig.java b/src/main/java/co/chaoticpvp/ChaosConfig.java
+index bf460edf575701f90238abf6cfa4edf66543d89c..5046d5e9c086660985a7a9c9deede06f7a48d529 100644
+--- a/src/main/java/co/chaoticpvp/ChaosConfig.java
++++ b/src/main/java/co/chaoticpvp/ChaosConfig.java
+@@ -56,27 +56,18 @@ public class ChaosConfig {
+ 
+ 
+     static void readConfig(Class<?> clazz, Object instance) {
+-        for (Method method : clazz.getDeclaredMethods())
+-        {
+-            if (Modifier.isPrivate(method.getModifiers()))
+-            {
+-                if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE)
+-                {
+-                    try
+-                    {
++        for (Method method : clazz.getDeclaredMethods()) {
++            if (Modifier.isPrivate(method.getModifiers())) {
++                if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE) {
++                    try {
+                         method.setAccessible(true);
+                         method.invoke(instance);
+-
+                     }
+-                    catch (InvocationTargetException ex)
+-                    {
++                    catch (InvocationTargetException ex) {
+                         throw Throwables.propagate(ex.getCause());
+-
+                     }
+-                    catch (Exception ex)
+-                    {
++                    catch (Exception ex) {
+                         Bukkit.getLogger().log(Level.SEVERE, "Error invoking " + method, ex);
+-
+                     }
+ 
+                 }
+@@ -92,7 +83,6 @@ public class ChaosConfig {
+         catch (IOException ex)
+         {
+             Bukkit.getLogger().log(Level.SEVERE, "Could not save " + CONFIG_FILE, ex);
+-
+         }
+ 
+     }
+@@ -100,42 +90,36 @@ public class ChaosConfig {
+ 
+     private static void set(String path, Object val) {
+         config.set(path, val);
+-
+     }
+ 
+ 
+     private static boolean getBoolean(String path, boolean def) {
+         config.addDefault(path, def);
+         return config.getBoolean(path, config.getBoolean(path));
+-
+     }
+ 
+ 
+     private static double getDouble(String path, double def) {
+         config.addDefault(path, def);
+         return config.getDouble(path, config.getDouble(path));
+-
+     }
+ 
+ 
+     private static float getFloat(String path, float def) {
+         config.addDefault(path, def);
+         return (float)config.getDouble(path, config.getDouble(path));
+-
+     }
+ 
+ 
+     private static int getInt(String path, int def) {
+         config.addDefault(path, def);
+         return config.getInt(path, config.getInt(path));
+-
+     }
+ 
+ 
+     private static <T> List<T> getList(String path, T def) {
+         config.addDefault(path, def);
+         return (List<T>) config.getList(path, config.getList(path));
+-
+     }
+ 
+     private static String getString(String path, String def) {
