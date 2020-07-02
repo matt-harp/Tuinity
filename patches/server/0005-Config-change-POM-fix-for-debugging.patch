@@ -1,0 +1,256 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Wed, 1 Jul 2020 21:17:15 -0500
+Subject: [PATCH] Config change, POM fix for debugging
+
+
+diff --git a/pom.xml b/pom.xml
+index 66517f30fc00b86d1e3539e700f8c643aaada85e..4e85794b37ccd40b8e18f3401b6a1aeb47c3a0d2 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -14,6 +14,7 @@
+         <minecraft_version>1_15_R1</minecraft_version>
+         <maven.compiler.source>1.8</maven.compiler.source>
+         <maven.compiler.target>1.8</maven.compiler.target>
++        <dir>${project.build.directory}</dir>
+     </properties>
+ 
+     <parent>
+@@ -188,6 +189,7 @@
+                 <artifactId>maven-jar-plugin</artifactId>
+                 <version>3.2.0</version>
+                 <configuration>
++                    <outputDirectory>${dir}</outputDirectory>
+                     <forceCreation>true</forceCreation> <!-- Required to prevent shading the jar multiple times -->
+                     <archive>
+                         <manifest>
+diff --git a/src/main/java/co/chaoticpvp/ChaosConfig.java b/src/main/java/co/chaoticpvp/ChaosConfig.java
+index bf460edf575701f90238abf6cfa4edf66543d89c..f900a74686b373c35e08986aedc46ca854c2da8c 100644
+--- a/src/main/java/co/chaoticpvp/ChaosConfig.java
++++ b/src/main/java/co/chaoticpvp/ChaosConfig.java
+@@ -19,8 +19,9 @@ import java.util.logging.Level;
+ public class ChaosConfig {
+     private static File CONFIG_FILE;
+ 
+-    private static final String HEADER = "This is the main configuration file for FluxSpigot.\n" +
+-            "This is a modification of TacoSpigot. Based on main repository of AmbrosL/CustomSpigot\n";
++    private static final String HEADER = "This is the main configuration file for Chaos, which is a fork of Tuinity, originally created by Spottedleaf. \n" +
++            "Many of the patches, including this config, were taken from VictorML11's FluxSpigot, a fork of TacoSpigot. (fork-ception?)\n" +
++            "Credit goes to these developers.";
+ 
+     /*========================================================================*/
+     static YamlConfiguration config;
+@@ -31,68 +32,50 @@ public class ChaosConfig {
+     public static void init(File configFile) {
+         CONFIG_FILE = configFile;
+         config = new YamlConfiguration();
+-        try
+-        {
+-            System.out.println("Loading FluxSpigot config from " + configFile.getName());
++        try {
++            System.out.println("Loading Chaos config from " + configFile.getName());
+             config.load(CONFIG_FILE);
+-
+         }
+-        catch (IOException ex)
+-        {
++        catch (IOException ignored) {
+ 
+         }
+-        catch (InvalidConfigurationException ex)
+-        {
+-            Bukkit.getLogger().log(Level.SEVERE, "Could not load flux.yml, please correct your syntax errors", ex);
++        catch (InvalidConfigurationException ex) {
++            Bukkit.getLogger().log(Level.SEVERE, "Could not load chaos.yml, please correct your syntax errors", ex);
+             throw Throwables.propagate(ex);
+-
+         }
+         config.options().header(HEADER);
+         config.options().copyDefaults(true);
+ 
+         version = getInt("config-version", 1);
+         set("config-version", 1);
++        readConfig(ChaosConfig.class, null);
+     }
+ 
+ 
+     static void readConfig(Class<?> clazz, Object instance) {
+-        for (Method method : clazz.getDeclaredMethods())
+-        {
+-            if (Modifier.isPrivate(method.getModifiers()))
+-            {
+-                if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE)
+-                {
+-                    try
+-                    {
++        for (Method method : clazz.getDeclaredMethods()) {
++            if (Modifier.isPrivate(method.getModifiers())) {
++                if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE) {
++                    try {
+                         method.setAccessible(true);
+                         method.invoke(instance);
+-
+                     }
+-                    catch (InvocationTargetException ex)
+-                    {
++                    catch (InvocationTargetException ex) {
+                         throw Throwables.propagate(ex.getCause());
+ 
+                     }
+-                    catch (Exception ex)
+-                    {
++                    catch (Exception ex) {
+                         Bukkit.getLogger().log(Level.SEVERE, "Error invoking " + method, ex);
+-
+                     }
+-
+                 }
+-
+             }
+-
+         }
+ 
+-        try
+-        {
++        try {
+             config.save(CONFIG_FILE);
+         }
+-        catch (IOException ex)
+-        {
++        catch (IOException ex) {
+             Bukkit.getLogger().log(Level.SEVERE, "Could not save " + CONFIG_FILE, ex);
+-
+         }
+ 
+     }
+@@ -100,42 +83,36 @@ public class ChaosConfig {
+ 
+     private static void set(String path, Object val) {
+         config.set(path, val);
+-
+     }
+ 
+ 
+     private static boolean getBoolean(String path, boolean def) {
+         config.addDefault(path, def);
+         return config.getBoolean(path, config.getBoolean(path));
+-
+     }
+ 
+ 
+     private static double getDouble(String path, double def) {
+         config.addDefault(path, def);
+         return config.getDouble(path, config.getDouble(path));
+-
+     }
+ 
+ 
+     private static float getFloat(String path, float def) {
+         config.addDefault(path, def);
+         return (float)config.getDouble(path, config.getDouble(path));
+-
+     }
+ 
+ 
+     private static int getInt(String path, int def) {
+         config.addDefault(path, def);
+         return config.getInt(path, config.getInt(path));
+-
+     }
+ 
+ 
+     private static <T> List<T> getList(String path, T def) {
+         config.addDefault(path, def);
+         return (List<T>) config.getList(path, config.getList(path));
+-
+     }
+ 
+     private static String getString(String path, String def) {
+@@ -143,6 +120,12 @@ public class ChaosConfig {
+         return config.getString(path, config.getString(path));
+     }
+ 
++    public static boolean disableRandomTntSpread;
++
++    private static void disableRandomTntSpread() {
++        disableRandomTntSpread = getBoolean("disable-random-tnt-spread", true);
++    }
++
+     // This is an example for adding a new Configuration Value [No section]
+     /*
+     public static boolean useArraysForBlockStates;
+diff --git a/src/main/java/net/minecraft/server/EntityTNTPrimed.java b/src/main/java/net/minecraft/server/EntityTNTPrimed.java
+index 9c31edade247baac6811ef3ec98e88a332bcffba..97ff26fc96d299480ef11a034d3aafb024a101d6 100644
+--- a/src/main/java/net/minecraft/server/EntityTNTPrimed.java
++++ b/src/main/java/net/minecraft/server/EntityTNTPrimed.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.server;
+ 
+ import javax.annotation.Nullable;
++
++import co.chaoticpvp.ChaosConfig;
+ import org.bukkit.event.entity.ExplosionPrimeEvent; // CraftBukkit
+ 
+ public class EntityTNTPrimed extends Entity {
+@@ -21,9 +23,20 @@ public class EntityTNTPrimed extends Entity {
+     public EntityTNTPrimed(World world, double d0, double d1, double d2, @Nullable EntityLiving entityliving) {
+         this(EntityTypes.TNT, world);
+         this.setPosition(d0, d1, d2);
++        // Chaos start - disable random spread
++        if(!ChaosConfig.disableRandomTntSpread) {
++            double d3 = world.random.nextDouble() * 6.2831854820251465D;
++
++            this.setMot(-Math.sin(d3) * 0.02D, 0.20000000298023224D, -Math.cos(d3) * 0.02D);
++        } else {
++            this.setMot(0.0D, 0.20000000298023224D, 0.0D);
++        }
++        /*
+         double d3 = world.random.nextDouble() * 6.2831854820251465D;
+ 
+         this.setMot(-Math.sin(d3) * 0.02D, 0.20000000298023224D, -Math.cos(d3) * 0.02D);
++        */
++        // Chaos end
+         this.setFuseTicks(80);
+         this.lastX = d0;
+         this.lastY = d1;
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 9badb83c55d1331cb627bbdb5258f02939789f7e..d46620407b236084261c7c4cc01cb20b0ec27558 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -815,6 +815,7 @@ public final class CraftServer implements Server {
+ 
+         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
++        co.chaoticpvp.ChaosConfig.init((File) console.options.valueOf("chaos-settings")); // Paper
+         for (WorldServer world : console.getWorlds()) {
+             world.worldData.setDifficulty(config.difficulty);
+             world.setSpawnFlags(config.spawnMonsters, config.spawnAnimals);
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 8a4951b8c74b18f90876018a346be6869070f025..cbae157c5de77cd36459dfc20e6676524406990c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -146,6 +146,14 @@ public class Main {
+                         .defaultsTo("Unknown Server")
+                         .describedAs("Name");
+                 // Paper end
++
++                // Chaos Start
++                acceptsAll(asList("chaos", "chaos-settings"), "Chaos settings")
++                        .withRequiredArg()
++                        .ofType(File.class)
++                        .defaultsTo(new File("chaos.yml"))
++                        .describedAs("Yml file");
++                // Chaos end
+             }
+         };
+ 
+@@ -270,6 +278,9 @@ public class Main {
+                 } else {
+                     System.out.println("Unable to read system info");
+                 }
++
++                co.chaoticpvp.ChaosConfig.init((File) options.valueOf("chaos-settings")); // Chaos
++
+                 // Paper end
+                 System.setProperty( "library.jansi.version", "Paper" ); // Paper - set meaningless jansi version to prevent git builds from crashing on Windows
+                 System.out.println("Loading libraries, please wait...");
