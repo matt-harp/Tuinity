@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Thu, 2 Jul 2020 00:20:14 -0500
+Subject: [PATCH] Config option to disable TNT from lighting other TNT
+
+
+diff --git a/src/main/java/co/chaoticpvp/ChaosConfig.java b/src/main/java/co/chaoticpvp/ChaosConfig.java
+index f900a74686b373c35e08986aedc46ca854c2da8c..a509f208556d9f7d67168cf055d6069bf4f20a7b 100644
+--- a/src/main/java/co/chaoticpvp/ChaosConfig.java
++++ b/src/main/java/co/chaoticpvp/ChaosConfig.java
+@@ -126,6 +126,12 @@ public class ChaosConfig {
+         disableRandomTntSpread = getBoolean("disable-random-tnt-spread", true);
+     }
+ 
++    public static boolean tntChainReaction;
++
++    private static void tntChainReaction() {
++        tntChainReaction = getBoolean("allow-tnt-to-chain-react", false);
++    }
++
+     // This is an example for adding a new Configuration Value [No section]
+     /*
+     public static boolean useArraysForBlockStates;
+diff --git a/src/main/java/net/minecraft/server/BlockTNT.java b/src/main/java/net/minecraft/server/BlockTNT.java
+index 592fcd538a4e25d7779328d6d6cd8efda238b55d..91c131b34c3dfb9e0c6efe2dc36542dcb34bcfeb 100644
+--- a/src/main/java/net/minecraft/server/BlockTNT.java
++++ b/src/main/java/net/minecraft/server/BlockTNT.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.server;
+ 
+ import javax.annotation.Nullable;
++
++import co.chaoticpvp.ChaosConfig; // Chaos
+ import com.destroystokyo.paper.event.block.TNTPrimeEvent; // Paper - TNTPrimeEvent
+ 
+ public class BlockTNT extends Block {
+@@ -53,7 +55,7 @@ public class BlockTNT extends Block {
+ 
+     @Override
+     public void wasExploded(World world, BlockPosition blockposition, Explosion explosion) {
+-        if (!world.isClientSide) {
++        if (!world.isClientSide && ChaosConfig.tntChainReaction) {
+             // Paper start - TNTPrimeEvent
+             org.bukkit.block.Block tntBlock = MCUtil.toBukkitBlock(world, blockposition);;
+             org.bukkit.entity.Entity source = explosion.source != null ? explosion.source.getBukkitEntity() : null;
