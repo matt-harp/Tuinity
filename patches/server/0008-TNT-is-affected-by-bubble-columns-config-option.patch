@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Thu, 2 Jul 2020 20:22:00 -0500
+Subject: [PATCH] TNT is affected by bubble columns config option
+
+
+diff --git a/src/main/java/co/chaoticpvp/ChaosConfig.java b/src/main/java/co/chaoticpvp/ChaosConfig.java
+index 0dcb09959688e76676eef2450cd69b247233e4c2..fbf6534b1437e3e431f5cb43491095be5eab732d 100644
+--- a/src/main/java/co/chaoticpvp/ChaosConfig.java
++++ b/src/main/java/co/chaoticpvp/ChaosConfig.java
+@@ -144,6 +144,12 @@ public class ChaosConfig {
+         tntDrainsWaterloggedBlocks = getBoolean("tnt.explosion-drains-waterlogged-blocks", true);
+     }
+ 
++    public static boolean tntIsAffectedByBubbleColumns;
++
++    private static void tntIsAffectedByBubbleColumns() {
++        tntIsAffectedByBubbleColumns = getBoolean("tnt.affected-by-bubble-columns", false);
++    }
++
+     // This is an example for adding a new Configuration Value [No section]
+     /*
+     public static boolean useArraysForBlockStates;
+diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
+index e0ab058bf947ea10b37eadf6122292e708bd3809..36a280eb4bb90bdd5a20e7912b0687e054ad8c37 100644
+--- a/src/main/java/net/minecraft/server/Entity.java
++++ b/src/main/java/net/minecraft/server/Entity.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.server;
+ 
++import co.chaoticpvp.ChaosConfig;
+ import com.google.common.collect.ImmutableSet;
+ import com.google.common.collect.Iterables;
+ import com.google.common.collect.Lists;
+@@ -2509,6 +2510,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+     }
+ 
+     public void k(boolean flag) {
++        if(this instanceof EntityTNTPrimed && !ChaosConfig.tntIsAffectedByBubbleColumns) return; // Chaos stop tnt from being affected by bubble columns
+         Vec3D vec3d = this.getMot();
+         double d0;
+ 
