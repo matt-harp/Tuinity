@@ -47,7 +47,7 @@ index 67e9a32c2b56e0ca70ef138873b1dc9dc215e452..4b71f4c55e5f3dceac3c46eb40d5457f
      public static final class WorldConfig {
  
 diff --git a/src/main/java/net/minecraft/server/ChunkMapDistance.java b/src/main/java/net/minecraft/server/ChunkMapDistance.java
-index b69e14d730c0765dfd5cbf7dd4349a1090bf4468..d83d3b54d394bab7ee9161552cb41ed93d1c9335 100644
+index 893c0085bca0a8d77a85dba1cc29f2dec96c56ec..823f058b24f97e7c0466da7e3336f0d3bdbcddf0 100644
 --- a/src/main/java/net/minecraft/server/ChunkMapDistance.java
 +++ b/src/main/java/net/minecraft/server/ChunkMapDistance.java
 @@ -31,7 +31,7 @@ public abstract class ChunkMapDistance {
@@ -107,7 +107,7 @@ index b69e14d730c0765dfd5cbf7dd4349a1090bf4468..d83d3b54d394bab7ee9161552cb41ed9
      protected ChunkMapDistance(Executor executor, Executor executor1) {
          executor1.getClass();
          Mailbox<Runnable> mailbox = Mailbox.a("player ticket throttler", executor1::execute);
-@@ -69,12 +110,30 @@ public abstract class ChunkMapDistance {
+@@ -68,12 +109,30 @@ public abstract class ChunkMapDistance {
          ++this.currentTick;
          ObjectIterator objectiterator = this.tickets.long2ObjectEntrySet().fastIterator();
  
@@ -139,7 +139,7 @@ index b69e14d730c0765dfd5cbf7dd4349a1090bf4468..d83d3b54d394bab7ee9161552cb41ed9
                  this.ticketLevelTracker.update(entry.getLongKey(), getLowestTicketLevel((ArraySetSorted) entry.getValue()), false);
              }
  
-@@ -178,27 +237,11 @@ public abstract class ChunkMapDistance {
+@@ -176,27 +235,11 @@ public abstract class ChunkMapDistance {
          boolean removed = false; // CraftBukkit
          if (arraysetsorted.remove(ticket)) {
              removed = true; // CraftBukkit

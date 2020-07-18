@@ -22,7 +22,7 @@ index f900a74686b373c35e08986aedc46ca854c2da8c..a509f208556d9f7d67168cf055d6069b
      /*
      public static boolean useArraysForBlockStates;
 diff --git a/src/main/java/net/minecraft/server/BlockTNT.java b/src/main/java/net/minecraft/server/BlockTNT.java
-index 592fcd538a4e25d7779328d6d6cd8efda238b55d..91c131b34c3dfb9e0c6efe2dc36542dcb34bcfeb 100644
+index 7b601955f3fd36f06c838b896b455a606954d980..84d89cc87866ce786cc8c47186c97a6cf6d181f9 100644
 --- a/src/main/java/net/minecraft/server/BlockTNT.java
 +++ b/src/main/java/net/minecraft/server/BlockTNT.java
 @@ -1,6 +1,8 @@
@@ -41,5 +41,5 @@ index 592fcd538a4e25d7779328d6d6cd8efda238b55d..91c131b34c3dfb9e0c6efe2dc36542dc
 -        if (!world.isClientSide) {
 +        if (!world.isClientSide && ChaosConfig.tntChainReaction) {
              // Paper start - TNTPrimeEvent
-             org.bukkit.block.Block tntBlock = MCUtil.toBukkitBlock(world, blockposition);;
+             org.bukkit.block.Block tntBlock = MCUtil.toBukkitBlock(world, blockposition);
              org.bukkit.entity.Entity source = explosion.source != null ? explosion.source.getBukkitEntity() : null;

@@ -7,7 +7,7 @@ Happens when breaking a waterlogged chest.
 Fix is to just not validate the TE while the chest is being removed.
 
 diff --git a/src/main/java/net/minecraft/server/BlockChest.java b/src/main/java/net/minecraft/server/BlockChest.java
-index 89b1f0f22533cc11192704040431f5b8ade1fa87..dba774018ccd88d75f3a69ceee10fd4691fcfdb6 100644
+index 44b9bfcdc7f2cbf4dc6e28c258506d9f84783b0e..7cb797d5053a10ceb000b2245b105635adea329b 100644
 --- a/src/main/java/net/minecraft/server/BlockChest.java
 +++ b/src/main/java/net/minecraft/server/BlockChest.java
 @@ -195,7 +195,7 @@ public class BlockChest extends BlockChestAbstract<TileEntityChest> implements I

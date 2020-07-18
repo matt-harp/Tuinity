@@ -22,20 +22,21 @@ index 0dcb09959688e76676eef2450cd69b247233e4c2..fbf6534b1437e3e431f5cb43491095be
      /*
      public static boolean useArraysForBlockStates;
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index e0ab058bf947ea10b37eadf6122292e708bd3809..36a280eb4bb90bdd5a20e7912b0687e054ad8c37 100644
+index 2f701b78ede718cf3b1391e0b10b3f664af1f644..810fa5495b8e6a987597c3c35bc73c9dc3209512 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
-@@ -1,5 +1,6 @@
- package net.minecraft.server;
+@@ -2,6 +2,7 @@ package net.minecraft.server;
  
+ import co.aikar.timings.MinecraftTimings;
+ import co.aikar.timings.Timing;
 +import co.chaoticpvp.ChaosConfig;
- import com.google.common.collect.ImmutableSet;
  import com.google.common.collect.Iterables;
  import com.google.common.collect.Lists;
-@@ -2509,6 +2510,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+ import com.google.common.collect.Sets;
+@@ -2452,6 +2453,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
      }
  
-     public void k(boolean flag) {
+     public void l(boolean flag) {
 +        if(this instanceof EntityTNTPrimed && !ChaosConfig.tntIsAffectedByBubbleColumns) return; // Chaos stop tnt from being affected by bubble columns
          Vec3D vec3d = this.getMot();
          double d0;

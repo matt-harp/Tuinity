@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Fri, 17 Jul 2020 21:26:51 -0500
+Subject: [PATCH] artificial block break event flag
+
+
+diff --git a/src/main/java/org/bukkit/event/block/BlockBreakEvent.java b/src/main/java/org/bukkit/event/block/BlockBreakEvent.java
+index c05cd9cadcff827a2eb236cf955bc898fa5e8b52..35d910b96f2d0604d5fe52ad20621a1605ffbc4e 100644
+--- a/src/main/java/org/bukkit/event/block/BlockBreakEvent.java
++++ b/src/main/java/org/bukkit/event/block/BlockBreakEvent.java
+@@ -30,12 +30,14 @@ public class BlockBreakEvent extends BlockExpEvent implements Cancellable {
+     private final Player player;
+     private boolean dropItems;
+     private boolean cancel;
++    private boolean artificial; // Chaos
+ 
+     public BlockBreakEvent(@NotNull final Block theBlock, @NotNull final Player player) {
+         super(theBlock, 0);
+ 
+         this.player = player;
+         this.dropItems = true; // Defaults to dropping items as it normally would
++        this.artificial = false; // Chaos
+     }
+ 
+     /**
+@@ -75,4 +77,14 @@ public class BlockBreakEvent extends BlockExpEvent implements Cancellable {
+     public void setCancelled(boolean cancel) {
+         this.cancel = cancel;
+     }
++
++    // Chaos start artificial flag
++    public boolean isArtificial() {
++        return artificial;
++    }
++
++    public void setArtificial(boolean artificial) {
++        this.artificial = artificial;
++    }
++    // Chaos end
+ }

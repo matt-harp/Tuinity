@@ -277,18 +277,18 @@ index 5f81997db78c989e942351e80a0d2558f4b90fcd..756e008c706bf34d5cc1c7c61a5e0042
          this.world = new CraftWorld((WorldServer) this, gen, env);
          this.ticksPerAnimalSpawns = this.getServer().getTicksPerAnimalSpawns(); // CraftBukkit
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index ec74b602744ddd5353ddfacccdd4a981a7067cbc..35b2f664cba274d171d9ec660d2dda94869912d5 100644
+index fe04fbba103cff48a88492183f7613f07ac365f9..cc592da8a50541af27e2392c65d93187c71cae8e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -848,6 +848,7 @@ public final class CraftServer implements Server {
- 
+@@ -849,6 +849,7 @@ public final class CraftServer implements Server {
          org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
          com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
+         co.chaoticpvp.ChaosConfig.init((File) console.options.valueOf("chaos-settings")); // Paper
 +        com.tuinity.tuinity.config.TuinityConfig.init((File) console.options.valueOf("tuinity-settings")); // Tuinity - Server Config
          for (WorldServer world : console.getWorlds()) {
              world.worldDataServer.setDifficulty(config.difficulty);
              world.setSpawnFlags(config.spawnMonsters, config.spawnAnimals);
-@@ -882,6 +883,7 @@ public final class CraftServer implements Server {
+@@ -883,6 +884,7 @@ public final class CraftServer implements Server {
              }
              world.spigotConfig.init(); // Spigot
              world.paperConfig.init(); // Paper
@@ -296,7 +296,7 @@ index ec74b602744ddd5353ddfacccdd4a981a7067cbc..35b2f664cba274d171d9ec660d2dda94
          }
  
          Plugin[] pluginClone = pluginManager.getPlugins().clone(); // Paper
-@@ -2231,6 +2233,14 @@ public final class CraftServer implements Server {
+@@ -2232,6 +2234,14 @@ public final class CraftServer implements Server {
              return com.destroystokyo.paper.PaperConfig.config;
          }
  
@@ -312,7 +312,7 @@ index ec74b602744ddd5353ddfacccdd4a981a7067cbc..35b2f664cba274d171d9ec660d2dda94
          public void restart() {
              org.spigotmc.RestartCommand.restart();
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index d53139a69e02f191ab804a2e104b9372f034e79d..b4e65963efdf4f192908c8433bdeca7c549708a2 100644
+index 243e9eb53b0494114baedeade92c2999464a85ba..7ea3e2b85b15d18146193dd8203cacfa43641cf9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -138,6 +138,13 @@ public class Main {

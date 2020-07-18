@@ -6,7 +6,7 @@ Subject: [PATCH] Optimise chunk tick iteration
 Use a dedicated list of entity ticking chunks to reduce the cost
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index c53debd9731c393f2b1cbdc5f704b90f54e9e43d..8ce71c21bb908fcf4baaa878669d1f936bf2884e 100644
+index 517027d8700f7e233018f62017c8befc93abdc5c..bc7a50c3dc3f6e89719869d24603354216f555e1 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -908,6 +908,16 @@ public class ChunkProviderServer extends IChunkProvider {

@@ -6,10 +6,10 @@ Subject: [PATCH] Execute chunk tasks mid-tick
 This will help the server load chunks if tick times are high.
 
 diff --git a/src/main/java/com/destroystokyo/paper/server/ticklist/PaperTickList.java b/src/main/java/com/destroystokyo/paper/server/ticklist/PaperTickList.java
-index 4ad7d9da29481c6be301fe4a912a24adc7409d7a..4263eb917274ddc7acd9651caf7510a36c0558d6 100644
+index 0692fe33bb7c4a7bb666920b10f5dd3a0e7a7689..ecd63860887744b3b9eecf96ab12fd4c408c438c 100644
 --- a/src/main/java/com/destroystokyo/paper/server/ticklist/PaperTickList.java
 +++ b/src/main/java/com/destroystokyo/paper/server/ticklist/PaperTickList.java
-@@ -298,6 +298,7 @@ public final class PaperTickList<T> extends TickListServer<T> { // extend to avo
+@@ -296,6 +296,7 @@ public final class PaperTickList<T> extends TickListServer<T> { // extend to avo
                      if (toTick.tickState == STATE_TICKING) {
                          toTick.tickState = STATE_TICKED;
                      } // else it's STATE_CANCELLED_TICK
@@ -18,7 +18,7 @@ index 4ad7d9da29481c6be301fe4a912a24adc7409d7a..4263eb917274ddc7acd9651caf7510a3
                      // re-schedule eventually
                      toTick.tickState = STATE_SCHEDULED;
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index af9268760256edac610558de4856ae7704512271..411f56469e2a704c2dff0e994a855e0b1d16a6f0 100644
+index b0e0657dbc40fdf6c7366c8f66b978970664ebbc..e8f88193bfbb06af631bde7ee42efaa3f1877edb 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -892,7 +892,7 @@ public class ChunkProviderServer extends IChunkProvider {
@@ -266,10 +266,10 @@ index 4317e7de819156e87e2b07de0736a29a99557986..70d13aa56bca34a940cf3bab0d480b64
                  // Spigot Start
                  CrashReport crashreport;
 diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
-index c9852ea60dc1820e219240e9bd04f8e46dc0b3ac..60f83eb75cd794185c2006fd3c08622c632fc918 100644
+index 756e008c706bf34d5cc1c7c61a5e0042261d3d10..c5e1b9554806e51176cf0ec25f55509b06fb0e73 100644
 --- a/src/main/java/net/minecraft/server/World.java
 +++ b/src/main/java/net/minecraft/server/World.java
-@@ -946,6 +946,7 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+@@ -944,6 +944,7 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
              return;
              // Paper end
          }

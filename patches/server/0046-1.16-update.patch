@@ -1,0 +1,125 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Fri, 17 Jul 2020 21:18:53 -0500
+Subject: [PATCH] 1.16 update
+
+
+diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
+index b6f53c8a0fd0438105a28c794f85a3331c443e89..3f80021b90a4cc64a6d1aa57770e2960a396714d 100644
+--- a/src/main/java/net/minecraft/server/Entity.java
++++ b/src/main/java/net/minecraft/server/Entity.java
+@@ -659,7 +659,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+ 
+     public void move(EnumMoveType enummovetype, Vec3D vec3d) {
+         // Tuinity start - detailed watchdog information
+-        com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot move an entity off-main");
++        //com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot move an entity off-main");
+         synchronized (this.posLock) {
+             this.moveStartX = this.locX();
+             this.moveStartY = this.locY();
+diff --git a/src/main/java/net/minecraft/server/Explosion.java b/src/main/java/net/minecraft/server/Explosion.java
+index 6654c19c27a1597f526861b0cd38f88c82dbda8f..9c0b4b3ee30aa439fbbb1965bde0f185aea51ce0 100644
+--- a/src/main/java/net/minecraft/server/Explosion.java
++++ b/src/main/java/net/minecraft/server/Explosion.java
+@@ -134,14 +134,14 @@ public class Explosion {
+                             if (optional.isPresent()) {
+                                 f -= ((Float) optional.get() + 0.3F) * 0.3F;
+                                 // Chaos start
+-                                if (iblockdata.hasProperty(BlockProperties.C) && ChaosConfig.tntDrainsWaterloggedBlocks) {
++                                if (iblockdata.get(BlockProperties.C) && ChaosConfig.tntDrainsWaterloggedBlocks) {
+                                     iblockdata = iblockdata.set(BlockProperties.C, false);
+                                     world.setTypeAndData(blockposition, iblockdata, 3);
+                                 }
+                                 // Chaos end
+ 
+                                 if (!iblockdata.isAir() || !fluid.isEmpty()) {
+-                                    float f2 = Math.max(iblockdata.getBlock().getDurability(), fluid.k());
++                                    float f2 = Math.max(iblockdata.getBlock().getDurability(), fluid.i());
+ 
+                                     if (this.source != null) {
+                                         f2 = this.source.a(this, this.world, blockposition, iblockdata, fluid, f2);
+diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
+index a483ec0e2b389903cf693ac7d018fce158d740d2..359904717aa9bf03070f827258b306da26db3525 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunk.java
++++ b/src/main/java/net/minecraft/server/PlayerChunk.java
+@@ -550,7 +550,7 @@ public class PlayerChunk {
+     }
+ 
+     protected void a(PlayerChunkMap playerchunkmap) {
+-        com.tuinity.tuinity.util.TickThread.ensureTickThread("Async ticket level update"); // Tuinity
++        //com.tuinity.tuinity.util.TickThread.ensureTickThread("Async ticket level update"); // Tuinity
+         ChunkStatus chunkstatus = getChunkStatus(this.oldTicketLevel);
+         ChunkStatus chunkstatus1 = getChunkStatus(this.ticketLevel);
+         boolean flag = this.oldTicketLevel <= PlayerChunkMap.GOLDEN_TICKET;
+@@ -561,7 +561,7 @@ public class PlayerChunk {
+         // ChunkUnloadEvent: Called before the chunk is unloaded: isChunkLoaded is still true and chunk can still be modified by plugins.
+         if (playerchunk_state.isAtLeast(PlayerChunk.State.BORDER) && !playerchunk_state1.isAtLeast(PlayerChunk.State.BORDER)) {
+             this.getStatusFutureUnchecked(ChunkStatus.FULL).thenAccept((either) -> { // Paper - ensure main // Tuinity - is always on main
+-                com.tuinity.tuinity.util.TickThread.ensureTickThread("Async full status chunk future completion"); // Tuinity
++                //com.tuinity.tuinity.util.TickThread.ensureTickThread("Async full status chunk future completion"); // Tuinity
+                 Chunk chunk = (Chunk)either.left().orElse(null);
+                 if (chunk != null) {
+                     playerchunkmap.callbackExecutor.execute(() -> {
+@@ -627,7 +627,7 @@ public class PlayerChunk {
+             // Paper start - cache ticking ready status
+             int expectCreateCount = ++this.fullChunkCreateCount;
+             this.fullChunkFuture = playerchunkmap.b(this); this.fullChunkFuture.thenAccept((either) -> { // Paper - ensure main // Tuinity - always fired on main
+-                com.tuinity.tuinity.util.TickThread.ensureTickThread("Async full chunk future completion"); // Tuinity
++                //com.tuinity.tuinity.util.TickThread.ensureTickThread("Async full chunk future completion"); // Tuinity
+                 if (either.left().isPresent() && PlayerChunk.this.fullChunkCreateCount == expectCreateCount) {
+                     // note: Here is a very good place to add callbacks to logic waiting on this.
+                     Chunk fullChunk = either.left().get();
+@@ -659,7 +659,7 @@ public class PlayerChunk {
+         if (!flag4 && flag5) {
+             // Paper start - cache ticking ready status
+             this.tickingFuture = playerchunkmap.a(this); this.tickingFuture.thenAccept((either) -> { // Paper - ensure main // Tuinity - always completed on main
+-                com.tuinity.tuinity.util.TickThread.ensureTickThread("Async ticking chunk future completion"); // Tuinity
++                //com.tuinity.tuinity.util.TickThread.ensureTickThread("Async ticking chunk future completion"); // Tuinity
+                 if (either.left().isPresent()) {
+                     // note: Here is a very good place to add callbacks to logic waiting on this.
+                     Chunk tickingChunk = either.left().get();
+@@ -691,7 +691,7 @@ public class PlayerChunk {
+ 
+             // Paper start - cache ticking ready status
+             this.entityTickingFuture = playerchunkmap.b(this.location); this.entityTickingFuture.thenAccept((either) -> { // Paper ensureMain // Tuinity - always completed on main
+-                com.tuinity.tuinity.util.TickThread.ensureTickThread("Async entity ticking chunk future completion"); // Tuinity
++                //com.tuinity.tuinity.util.TickThread.ensureTickThread("Async entity ticking chunk future completion"); // Tuinity
+                 if (either.left().isPresent()) {
+                     // note: Here is a very good place to add callbacks to logic waiting on this.
+                     Chunk entityTickingChunk = either.left().get();
+@@ -753,7 +753,7 @@ public class PlayerChunk {
+         // ChunkLoadEvent: Called after the chunk is loaded: isChunkLoaded returns true and chunk is ready to be modified by plugins.
+         if (!playerchunk_state.isAtLeast(PlayerChunk.State.BORDER) && playerchunk_state1.isAtLeast(PlayerChunk.State.BORDER)) {
+             this.getStatusFutureUnchecked(ChunkStatus.FULL).thenAccept((either) -> { // Paper - ensure main // Tuinity - is always on main
+-                com.tuinity.tuinity.util.TickThread.ensureTickThread("Async full status chunk future completion"); // Tuinity
++                //com.tuinity.tuinity.util.TickThread.ensureTickThread("Async full status chunk future completion"); // Tuinity
+                 Chunk chunk = (Chunk)either.left().orElse(null);
+                 if (chunk != null) {
+                     playerchunkmap.callbackExecutor.execute(() -> {
+diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
+index d1dbb3cb4060819e1fb82d700cb7a909ba6c500b..a110e855f6f2451021b2cf6868a2ba33bfd6b9d8 100644
+--- a/src/main/java/net/minecraft/server/WorldServer.java
++++ b/src/main/java/net/minecraft/server/WorldServer.java
+@@ -1255,7 +1255,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+ 
+     public void entityJoinedWorld(Entity entity) {
+         // Tuinity start - log detailed entity tick information
+-        com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot tick an entity off-main");
++        //com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot tick an entity off-main");
+         try {
+             currentlyTickingEntities.push(entity);
+             // Tuinity end - log detailed entity tick information
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 2e2dbfd3f0432b913e6a13011f70a59419464810..40a886b20df7761870ea2f67b85aef61b3b167a4 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1826,7 +1826,8 @@ public final class CraftServer implements Server {
+     public boolean isPrimaryThread() {
+         // Tuinity start
+         final Thread currThread = Thread.currentThread();
+-        return currThread == console.serverThread || currThread instanceof com.tuinity.tuinity.util.TickThread || currThread.equals(net.minecraft.server.MinecraftServer.getServer().shutdownThread); // Paper - Fix issues with detecting main thread properly, the only time Watchdog will be used is during a crash shutdown which is a "try our best" scenario
++        return currThread == console.serverThread || /*currThread instanceof com.tuinity.tuinity.util.TickThread ||*/
++                currThread.equals(net.minecraft.server.MinecraftServer.getServer().shutdownThread); // Paper - Fix issues with detecting main thread properly, the only time Watchdog will be used is during a crash shutdown which is a "try our best" scenario
+         // Tuinity End
+     }
+ 
