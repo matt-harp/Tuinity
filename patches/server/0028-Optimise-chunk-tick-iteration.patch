@@ -6,7 +6,7 @@ Subject: [PATCH] Optimise chunk tick iteration
 Use a dedicated list of entity ticking chunks to reduce the cost
 
 diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
-index 517027d8700f7e233018f62017c8befc93abdc5c..bc7a50c3dc3f6e89719869d24603354216f555e1 100644
+index 6025dc4c3cf99c19a94e561fd19527941b677d5b..b8c8777d3534f763afc7fe5fab4ba458a3d4bb8d 100644
 --- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
 +++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
 @@ -908,6 +908,16 @@ public class ChunkProviderServer extends IChunkProvider {
@@ -26,7 +26,7 @@ index 517027d8700f7e233018f62017c8befc93abdc5c..bc7a50c3dc3f6e89719869d246033542
      private void tickChunks() {
          long i = this.world.getTime();
          long j = i - this.lastTickTime;
-@@ -978,19 +988,21 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -979,19 +989,21 @@ public class ChunkProviderServer extends IChunkProvider {
              //List<PlayerChunk> list = Lists.newArrayList(this.playerChunkMap.f()); // Paper
              //Collections.shuffle(list); // Paper
              // Paper - moved up
@@ -56,7 +56,7 @@ index 517027d8700f7e233018f62017c8befc93abdc5c..bc7a50c3dc3f6e89719869d246033542
                          ChunkCoordIntPair chunkcoordintpair = playerchunk.i();
  
                          if (!this.playerChunkMap.isOutsideOfRange(playerchunk, chunkcoordintpair, false)) { // Paper - optimise isOutsideOfRange
-@@ -1006,7 +1018,23 @@ public class ChunkProviderServer extends IChunkProvider {
+@@ -1007,7 +1019,23 @@ public class ChunkProviderServer extends IChunkProvider {
                          }
                      }
                  }
@@ -82,7 +82,7 @@ index 517027d8700f7e233018f62017c8befc93abdc5c..bc7a50c3dc3f6e89719869d246033542
              if (flag1) {
                  try (co.aikar.timings.Timing ignored = this.world.timings.miscMobSpawning.startTiming()) { // Paper - timings
 diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
-index 4ca923fa88b19791157a78bf4ddbb9c4ebcba34f..442fc932e16cb2c053249e5c386864ab40eb2c62 100644
+index 35ceb0734bc25e44ebde0d3a817f1d7ad636dffc..d003ac55a6a29fb9a28458b9f2c0eb7a6a4efed3 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunk.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunk.java
 @@ -691,7 +691,14 @@ public class PlayerChunk {
