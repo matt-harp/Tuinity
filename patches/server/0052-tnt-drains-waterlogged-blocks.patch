@@ -1,0 +1,109 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Thu, 6 Aug 2020 22:10:24 -0500
+Subject: [PATCH] tnt drains waterlogged blocks
+
+
+diff --git a/src/main/java/co/chaoticpvp/ChaosConfig.java b/src/main/java/co/chaoticpvp/ChaosConfig.java
+index ba52868873aa2b30cd6b875cb9f18a62dc5853a3..563d4bbf0716d5159fdf7029d0fafbc8d401a543 100644
+--- a/src/main/java/co/chaoticpvp/ChaosConfig.java
++++ b/src/main/java/co/chaoticpvp/ChaosConfig.java
+@@ -144,6 +144,12 @@ public class ChaosConfig {
+         spongesGetWet = getBoolean("sponges-turn-to-wet-sponge", false);
+     }
+ 
++    public static boolean tntDrainsWaterlogged;
++
++    private static void tntDrainsWaterlogged() {
++        tntDrainsWaterlogged = getBoolean("tnt.explosion-drains-waterlogged-blocks", true);
++    }
++
+     // This is an example for adding a new Configuration Value [No section]
+     /*
+     public static boolean useArraysForBlockStates;
+diff --git a/src/main/java/net/minecraft/server/Explosion.java b/src/main/java/net/minecraft/server/Explosion.java
+index e408ec8c645e9ceb278a13a5b0de8ecf57f3929e..571e81473e7d74e5fe117d462f4a4139f4b616bb 100644
+--- a/src/main/java/net/minecraft/server/Explosion.java
++++ b/src/main/java/net/minecraft/server/Explosion.java
+@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
+ import com.mojang.datafixers.util.Pair;
+ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+ import it.unimi.dsi.fastutil.objects.ObjectListIterator;
++
+ import java.util.Collections;
+ import java.util.Iterator;
+ import java.util.List;
+@@ -87,7 +88,8 @@ public class Explosion {
+             }
+ 
+             return (float) i / (float) j;
+-        } else {
++        }
++        else {
+             return 0.0F;
+         }
+     }
+@@ -132,6 +134,13 @@ public class Explosion {
+                                 f -= ((Float) optional.get() + 0.3F) * 0.3F;
+                             }
+ 
++                            // Chaos start
++                            if (iblockdata.get(BlockProperties.C) && co.chaoticpvp.ChaosConfig.tntDrainsWaterlogged) {
++                                iblockdata = iblockdata.set(BlockProperties.C, false);
++                                world.setTypeAndData(blockposition, iblockdata, 3);
++                            }
++                            // Chaos end
++
+                             if (f > 0.0F && this.k.a(this, this.world, blockposition, iblockdata, f) && blockposition.getY() < 256 && blockposition.getY() >= 0) { // CraftBukkit - don't wrap explosions
+                                 set.add(blockposition);
+                             }
+@@ -217,7 +226,8 @@ public class Explosion {
+         if (flag) {
+             if (this.size >= 2.0F && flag1) {
+                 this.world.addParticle(Particles.EXPLOSION_EMITTER, this.posX, this.posY, this.posZ, 1.0D, 0.0D, 0.0D);
+-            } else {
++            }
++            else {
+                 this.world.addParticle(Particles.EXPLOSION, this.posX, this.posY, this.posZ, 1.0D, 0.0D, 0.0D);
+             }
+         }
+@@ -251,7 +261,8 @@ public class Explosion {
+                 cancelled = event.isCancelled();
+                 bukkitBlocks = event.blockList();
+                 yield = event.getYield();
+-            } else {
++            }
++            else {
+                 BlockExplodeEvent event = new BlockExplodeEvent(location.getBlock(), blockList, this.b == Explosion.Effect.DESTROY ? 1.0F / this.size : 1.0F);
+                 this.world.getServer().getPluginManager().callEvent(event);
+                 cancelled = event.isCancelled();
+@@ -361,11 +372,14 @@ public class Explosion {
+     public EntityLiving getSource() {
+         if (this.source == null) {
+             return null;
+-        } else if (this.source instanceof EntityTNTPrimed) {
++        }
++        else if (this.source instanceof EntityTNTPrimed) {
+             return ((EntityTNTPrimed) this.source).getSource();
+-        } else if (this.source instanceof EntityLiving) {
++        }
++        else if (this.source instanceof EntityLiving) {
+             return (EntityLiving) this.source;
+-        } else {
++        }
++        else {
+             if (this.source instanceof IProjectile) {
+                 Entity entity = ((IProjectile) this.source).getShooter();
+ 
+@@ -390,8 +404,10 @@ public class Explosion {
+ 
+         NONE, BREAK, DESTROY;
+ 
+-        private Effect() {}
++        private Effect() {
++        }
+     }
++
+     // Paper start - Optimize explosions
+     private float getBlockDensity(Vec3D vec3d, Entity entity) {
+         if (!this.world.paperConfig.optimizeExplosions) {
