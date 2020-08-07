@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Thu, 6 Aug 2020 22:05:52 -0500
+Subject: [PATCH] sponges turn to wet sponge config option ( re add )
+
+
+diff --git a/src/main/java/co/chaoticpvp/ChaosConfig.java b/src/main/java/co/chaoticpvp/ChaosConfig.java
+index 7909f09780e731d7b09b015343a8d185683c82b6..ba52868873aa2b30cd6b875cb9f18a62dc5853a3 100644
+--- a/src/main/java/co/chaoticpvp/ChaosConfig.java
++++ b/src/main/java/co/chaoticpvp/ChaosConfig.java
+@@ -138,6 +138,12 @@ public class ChaosConfig {
+         tntIsAffectedByBubbleColumns = getBoolean("tnt.affected-by-bubble-columns", false);
+     }
+ 
++    public static boolean spongesGetWet;
++
++    private static void spongesGetWet() {
++        spongesGetWet = getBoolean("sponges-turn-to-wet-sponge", false);
++    }
++
+     // This is an example for adding a new Configuration Value [No section]
+     /*
+     public static boolean useArraysForBlockStates;
+diff --git a/src/main/java/net/minecraft/server/BlockSponge.java b/src/main/java/net/minecraft/server/BlockSponge.java
+index 362750bd85bc65c304f5fece344ecdeddebaf4ee..b53c3694ccaa7be19e60806a9e0ab4aac2d43dcb 100644
+--- a/src/main/java/net/minecraft/server/BlockSponge.java
++++ b/src/main/java/net/minecraft/server/BlockSponge.java
+@@ -30,7 +30,8 @@ public class BlockSponge extends Block {
+ 
+     protected void a(World world, BlockPosition blockposition) {
+         if (this.b(world, blockposition)) {
+-            world.setTypeAndData(blockposition, Blocks.WET_SPONGE.getBlockData(), 2);
++            if(co.chaoticpvp.ChaosConfig.spongesGetWet) // Chaos
++                world.setTypeAndData(blockposition, Blocks.WET_SPONGE.getBlockData(), 2);
+             world.triggerEffect(2001, blockposition, Block.getCombinedId(Blocks.WATER.getBlockData()));
+         }
+ 

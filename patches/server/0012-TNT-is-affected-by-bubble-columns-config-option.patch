@@ -5,11 +5,11 @@ Subject: [PATCH] TNT is affected by bubble columns config option
 
 
 diff --git a/src/main/java/co/chaoticpvp/ChaosConfig.java b/src/main/java/co/chaoticpvp/ChaosConfig.java
-index 0dcb09959688e76676eef2450cd69b247233e4c2..fbf6534b1437e3e431f5cb43491095be5eab732d 100644
+index a509f208556d9f7d67168cf055d6069bf4f20a7b..7909f09780e731d7b09b015343a8d185683c82b6 100644
 --- a/src/main/java/co/chaoticpvp/ChaosConfig.java
 +++ b/src/main/java/co/chaoticpvp/ChaosConfig.java
-@@ -144,6 +144,12 @@ public class ChaosConfig {
-         tntDrainsWaterloggedBlocks = getBoolean("tnt.explosion-drains-waterlogged-blocks", true);
+@@ -132,6 +132,12 @@ public class ChaosConfig {
+         tntChainReaction = getBoolean("allow-tnt-to-chain-react", false);
      }
  
 +    public static boolean tntIsAffectedByBubbleColumns;
@@ -22,7 +22,7 @@ index 0dcb09959688e76676eef2450cd69b247233e4c2..fbf6534b1437e3e431f5cb43491095be
      /*
      public static boolean useArraysForBlockStates;
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index 2f701b78ede718cf3b1391e0b10b3f664af1f644..810fa5495b8e6a987597c3c35bc73c9dc3209512 100644
+index a3a96a012d9ccdeb11f573a3d0c2680feec72747..0eeeeb3c47226a3965ee95d0dc7429cecdf605ae 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
 @@ -2,6 +2,7 @@ package net.minecraft.server;

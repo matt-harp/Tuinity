@@ -489,10 +489,10 @@ index 95ef96286855624590b72d69514b0fc0e08fddba..73163b417af7e522a4509bf9c1ab56d6
          T t0 = this.h.a(this.a.a(i));
  
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index efa541bdd4d6da7959d6001f1dedfa9e4d992cc8..db62601ea730c0c2fbc6469248ad92e81502f578 100644
+index 3da484e729cd45ce1e3b16ee50405881ae960316..1c1db30cff3aa3c588983b893e74d8688eba1eb6 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
-@@ -136,7 +136,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -137,7 +137,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
      public double D;
      public double E;
      public double F;
@@ -501,7 +501,7 @@ index efa541bdd4d6da7959d6001f1dedfa9e4d992cc8..db62601ea730c0c2fbc6469248ad92e8
      public boolean noclip;
      public float I;
      protected final Random random;
-@@ -655,6 +655,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -656,6 +656,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
          return this.moveStartZ;
      }
      // Tuinity end - detailed watchdog information
@@ -509,7 +509,7 @@ index efa541bdd4d6da7959d6001f1dedfa9e4d992cc8..db62601ea730c0c2fbc6469248ad92e8
      public void move(EnumMoveType enummovetype, Vec3D vec3d) {
          // Tuinity start - detailed watchdog information
          com.tuinity.tuinity.util.TickThread.ensureTickThread("Cannot move an entity off-main");
-@@ -693,7 +694,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -694,7 +695,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
              // Paper end
  
              vec3d = this.a(vec3d, enummovetype);
@@ -518,7 +518,7 @@ index efa541bdd4d6da7959d6001f1dedfa9e4d992cc8..db62601ea730c0c2fbc6469248ad92e8
  
              if (vec3d1.g() > 1.0E-7D) {
                  this.a(this.getBoundingBox().c(vec3d1));
-@@ -897,6 +898,132 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -898,6 +899,132 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
          return d0;
      }
  
@@ -651,7 +651,7 @@ index efa541bdd4d6da7959d6001f1dedfa9e4d992cc8..db62601ea730c0c2fbc6469248ad92e8
      private Vec3D f(Vec3D vec3d) {
          AxisAlignedBB axisalignedbb = this.getBoundingBox();
          VoxelShapeCollision voxelshapecollision = VoxelShapeCollision.a(this);
-@@ -932,6 +1059,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -933,6 +1060,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
          return vec3d1;
      }
  
@@ -659,7 +659,7 @@ index efa541bdd4d6da7959d6001f1dedfa9e4d992cc8..db62601ea730c0c2fbc6469248ad92e8
      public static double b(Vec3D vec3d) {
          return vec3d.x * vec3d.x + vec3d.z * vec3d.z;
      }
-@@ -1138,6 +1266,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -1139,6 +1267,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
  
  
      @Nullable public final AxisAlignedBB getCollisionBox(){return ay();} //Paper - OBFHELPER
@@ -667,7 +667,7 @@ index efa541bdd4d6da7959d6001f1dedfa9e4d992cc8..db62601ea730c0c2fbc6469248ad92e8
      @Nullable public AxisAlignedBB ay() {
          return null;
      }
-@@ -2021,8 +2150,8 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -2022,8 +2151,8 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
      }
  
      public final AxisAlignedBB getHardCollisionBox(Entity entity){ return j(entity);}//Paper - OBFHELPER

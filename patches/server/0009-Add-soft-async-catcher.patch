@@ -348,14 +348,14 @@ index 73478a61d48e23320d9f72fb3fd8f37050f22ac0..f911c49e7dd42546706f7797b9c579ea
          IBlockData iblockdata1 = oldBlock;
          IBlockData iblockdata2 = actualBlock;
 diff --git a/src/main/java/org/spigotmc/AsyncCatcher.java b/src/main/java/org/spigotmc/AsyncCatcher.java
-index 10606ed03e88e4e467de2d5424df12466c4e7873..c3ac1a46c3e06bfe06ad9ff9f4ec49c055a790b0 100644
+index 9f7d2ef932ab41cef5d3d0736d20a7c7e4a2c888..c3ac1a46c3e06bfe06ad9ff9f4ec49c055a790b0 100644
 --- a/src/main/java/org/spigotmc/AsyncCatcher.java
 +++ b/src/main/java/org/spigotmc/AsyncCatcher.java
 @@ -10,7 +10,7 @@ public class AsyncCatcher
  
      public static void catchOp(String reason)
      {
--        if ( enabled && !org.bukkit.Bukkit.isPrimaryThread() ) // Tuinity
+-        if ( enabled && Thread.currentThread() != MinecraftServer.getServer().serverThread )
 +        if ( ( enabled || com.tuinity.tuinity.util.TickThread.STRICT_THREAD_CHECKS ) && !org.bukkit.Bukkit.isPrimaryThread() ) // Tuinity
          {
              throw new IllegalStateException( "Asynchronous " + reason + "!" );

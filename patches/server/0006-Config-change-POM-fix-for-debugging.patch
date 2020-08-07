@@ -214,7 +214,7 @@ index 00b95dcb80dd2510e7448c03f38cd84a50c6526a..8f6b1493a75b60e914a85306be0ef762
          this.lastX = d0;
          this.lastY = d1;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index ec74b602744ddd5353ddfacccdd4a981a7067cbc..fe04fbba103cff48a88492183f7613f07ac365f9 100644
+index 6fb68a6c0fcef3e03a5052e57a4ea6ede1436154..de1f1ff4fad65bdb0ed052c31a8d22c6127db056 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -848,6 +848,7 @@ public final class CraftServer implements Server {
@@ -226,7 +226,7 @@ index ec74b602744ddd5353ddfacccdd4a981a7067cbc..fe04fbba103cff48a88492183f7613f0
              world.worldDataServer.setDifficulty(config.difficulty);
              world.setSpawnFlags(config.spawnMonsters, config.spawnAnimals);
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index d53139a69e02f191ab804a2e104b9372f034e79d..243e9eb53b0494114baedeade92c2999464a85ba 100644
+index 8fc966dfc94ae3cf1c762afa68d13f04244ff36f..0e3df2bb7d731c7d0d60c3caf93e08b7eac071e0 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -146,6 +146,14 @@ public class Main {

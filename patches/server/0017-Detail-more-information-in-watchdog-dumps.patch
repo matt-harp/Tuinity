@@ -7,10 +7,10 @@ Subject: [PATCH] Detail more information in watchdog dumps
 - Dump player name, player uuid, position, and world for packet handling
 
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index a3a96a012d9ccdeb11f573a3d0c2680feec72747..efa541bdd4d6da7959d6001f1dedfa9e4d992cc8 100644
+index 0eeeeb3c47226a3965ee95d0dc7429cecdf605ae..3da484e729cd45ce1e3b16ee50405881ae960316 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
-@@ -633,7 +633,39 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -634,7 +634,39 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
          return this.onGround;
      }
  
@@ -50,7 +50,7 @@ index a3a96a012d9ccdeb11f573a3d0c2680feec72747..efa541bdd4d6da7959d6001f1dedfa9e
          if (this.noclip) {
              this.a(this.getBoundingBox().c(vec3d));
              this.recalcPosition();
-@@ -778,6 +810,13 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -779,6 +811,13 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
  
              this.world.getMethodProfiler().exit();
          }
@@ -64,7 +64,7 @@ index a3a96a012d9ccdeb11f573a3d0c2680feec72747..efa541bdd4d6da7959d6001f1dedfa9e
      }
  
      protected BlockPosition ak() {
-@@ -3307,12 +3346,16 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -3309,12 +3348,16 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
          return this.locBlock;
      }
  
@@ -81,7 +81,7 @@ index a3a96a012d9ccdeb11f573a3d0c2680feec72747..efa541bdd4d6da7959d6001f1dedfa9e
      }
  
      public void setMot(double d0, double d1, double d2) {
-@@ -3369,7 +3412,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
+@@ -3371,7 +3414,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
          }
          // Paper end
          if (this.loc.x != d0 || this.loc.y != d1 || this.loc.z != d2) {

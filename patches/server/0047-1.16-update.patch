@@ -5,7 +5,7 @@ Subject: [PATCH] 1.16 update
 
 
 diff --git a/src/main/java/net/minecraft/server/Entity.java b/src/main/java/net/minecraft/server/Entity.java
-index b6f53c8a0fd0438105a28c794f85a3331c443e89..3f80021b90a4cc64a6d1aa57770e2960a396714d 100644
+index 1c1db30cff3aa3c588983b893e74d8688eba1eb6..9668cc5df94b1f74ddb1057e6923d24d5edbfa96 100644
 --- a/src/main/java/net/minecraft/server/Entity.java
 +++ b/src/main/java/net/minecraft/server/Entity.java
 @@ -659,7 +659,7 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, Ke
@@ -17,29 +17,8 @@ index b6f53c8a0fd0438105a28c794f85a3331c443e89..3f80021b90a4cc64a6d1aa57770e2960
          synchronized (this.posLock) {
              this.moveStartX = this.locX();
              this.moveStartY = this.locY();
-diff --git a/src/main/java/net/minecraft/server/Explosion.java b/src/main/java/net/minecraft/server/Explosion.java
-index 6654c19c27a1597f526861b0cd38f88c82dbda8f..9c0b4b3ee30aa439fbbb1965bde0f185aea51ce0 100644
---- a/src/main/java/net/minecraft/server/Explosion.java
-+++ b/src/main/java/net/minecraft/server/Explosion.java
-@@ -134,14 +134,14 @@ public class Explosion {
-                             if (optional.isPresent()) {
-                                 f -= ((Float) optional.get() + 0.3F) * 0.3F;
-                                 // Chaos start
--                                if (iblockdata.hasProperty(BlockProperties.C) && ChaosConfig.tntDrainsWaterloggedBlocks) {
-+                                if (iblockdata.get(BlockProperties.C) && ChaosConfig.tntDrainsWaterloggedBlocks) {
-                                     iblockdata = iblockdata.set(BlockProperties.C, false);
-                                     world.setTypeAndData(blockposition, iblockdata, 3);
-                                 }
-                                 // Chaos end
- 
-                                 if (!iblockdata.isAir() || !fluid.isEmpty()) {
--                                    float f2 = Math.max(iblockdata.getBlock().getDurability(), fluid.k());
-+                                    float f2 = Math.max(iblockdata.getBlock().getDurability(), fluid.i());
- 
-                                     if (this.source != null) {
-                                         f2 = this.source.a(this, this.world, blockposition, iblockdata, fluid, f2);
 diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
-index a483ec0e2b389903cf693ac7d018fce158d740d2..359904717aa9bf03070f827258b306da26db3525 100644
+index 8ec21eb955adad01c93df946fea2db97aaf4972c..68a49d4bc3a7c6e2becd83b968a718f851564114 100644
 --- a/src/main/java/net/minecraft/server/PlayerChunk.java
 +++ b/src/main/java/net/minecraft/server/PlayerChunk.java
 @@ -550,7 +550,7 @@ public class PlayerChunk {
@@ -97,10 +76,10 @@ index a483ec0e2b389903cf693ac7d018fce158d740d2..359904717aa9bf03070f827258b306da
                  if (chunk != null) {
                      playerchunkmap.callbackExecutor.execute(() -> {
 diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
-index d1dbb3cb4060819e1fb82d700cb7a909ba6c500b..a110e855f6f2451021b2cf6868a2ba33bfd6b9d8 100644
+index 8fac4b826036adddd3f646b182bc2216dcb34e63..769b89979ce7588683386174b3e496afae66bfcc 100644
 --- a/src/main/java/net/minecraft/server/WorldServer.java
 +++ b/src/main/java/net/minecraft/server/WorldServer.java
-@@ -1255,7 +1255,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
+@@ -1257,7 +1257,7 @@ public class WorldServer extends World implements GeneratorAccessSeed {
  
      public void entityJoinedWorld(Entity entity) {
          // Tuinity start - log detailed entity tick information
@@ -110,10 +89,10 @@ index d1dbb3cb4060819e1fb82d700cb7a909ba6c500b..a110e855f6f2451021b2cf6868a2ba33
              currentlyTickingEntities.push(entity);
              // Tuinity end - log detailed entity tick information
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 2e2dbfd3f0432b913e6a13011f70a59419464810..40a886b20df7761870ea2f67b85aef61b3b167a4 100644
+index 9b6ff7eac26d07d1f2c3801f66563f2e4c186a47..5bb5d8cf16e97bdd54a1ebf856cfa6e9ffd12363 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1826,7 +1826,8 @@ public final class CraftServer implements Server {
+@@ -1833,7 +1833,8 @@ public final class CraftServer implements Server {
      public boolean isPrimaryThread() {
          // Tuinity start
          final Thread currThread = Thread.currentThread();
