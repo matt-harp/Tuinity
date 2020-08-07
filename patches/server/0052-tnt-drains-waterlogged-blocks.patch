@@ -48,7 +48,7 @@ index e408ec8c645e9ceb278a13a5b0de8ecf57f3929e..571e81473e7d74e5fe117d462f4a4139
                              }
  
 +                            // Chaos start
-+                            if (iblockdata.get(BlockProperties.C) && co.chaoticpvp.ChaosConfig.tntDrainsWaterlogged) {
++                            if (iblockdata.b(BlockProperties.C) && co.chaoticpvp.ChaosConfig.tntDrainsWaterlogged) {
 +                                iblockdata = iblockdata.set(BlockProperties.C, false);
 +                                world.setTypeAndData(blockposition, iblockdata, 3);
 +                            }
