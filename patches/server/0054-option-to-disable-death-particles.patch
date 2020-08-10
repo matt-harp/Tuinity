@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Sat, 8 Aug 2020 16:07:57 -0500
+Subject: [PATCH] option to disable death particles
+
+
+diff --git a/src/main/java/co/chaoticpvp/ChaosConfig.java b/src/main/java/co/chaoticpvp/ChaosConfig.java
+index 563d4bbf0716d5159fdf7029d0fafbc8d401a543..f1f1c1d6760775e185618307dcad6296e64673ed 100644
+--- a/src/main/java/co/chaoticpvp/ChaosConfig.java
++++ b/src/main/java/co/chaoticpvp/ChaosConfig.java
+@@ -123,13 +123,13 @@ public class ChaosConfig {
+     public static boolean disableRandomTntSpread;
+ 
+     private static void disableRandomTntSpread() {
+-        disableRandomTntSpread = getBoolean("disable-random-tnt-spread", true);
++        disableRandomTntSpread = getBoolean("tnt.disable-random-spread", true);
+     }
+ 
+     public static boolean tntChainReaction;
+ 
+     private static void tntChainReaction() {
+-        tntChainReaction = getBoolean("allow-tnt-to-chain-react", false);
++        tntChainReaction = getBoolean("tnt.chain-react", false);
+     }
+ 
+     public static boolean tntIsAffectedByBubbleColumns;
+@@ -150,6 +150,12 @@ public class ChaosConfig {
+         tntDrainsWaterlogged = getBoolean("tnt.explosion-drains-waterlogged-blocks", true);
+     }
+ 
++    public static boolean deathParticles;
++
++    private static void deathParticles() {
++        deathParticles = getBoolean("show-particles-on-mob-death", false);
++    }
++
+     // This is an example for adding a new Configuration Value [No section]
+     /*
+     public static boolean useArraysForBlockStates;
+diff --git a/src/main/java/net/minecraft/server/EntityInsentient.java b/src/main/java/net/minecraft/server/EntityInsentient.java
+index a5c9526499c64dd8e4c760c322c0ab6a14a19087..5df94f9780a1688341b18c706826b650e6f83956 100644
+--- a/src/main/java/net/minecraft/server/EntityInsentient.java
++++ b/src/main/java/net/minecraft/server/EntityInsentient.java
+@@ -293,7 +293,8 @@ public abstract class EntityInsentient extends EntityLiving {
+                 double d2 = this.random.nextGaussian() * 0.02D;
+                 double d3 = 10.0D;
+ 
+-                this.world.addParticle(Particles.POOF, this.c(1.0D) - d0 * 10.0D, this.cE() - d1 * 10.0D, this.g(1.0D) - d2 * 10.0D, d0, d1, d2);
++                if(co.chaoticpvp.ChaosConfig.deathParticles)
++                    this.world.addParticle(Particles.POOF, this.c(1.0D) - d0 * 10.0D, this.cE() - d1 * 10.0D, this.g(1.0D) - d2 * 10.0D, d0, d1, d2);
+             }
+         } else {
+             this.world.broadcastEntityEffect(this, (byte) 20);
+diff --git a/src/main/java/net/minecraft/server/EntityLiving.java b/src/main/java/net/minecraft/server/EntityLiving.java
+index b1143468374296c960b0d01dbaf022f208252d12..71d0fb3930e9994595def5cb6a00f481d8dab33b 100644
+--- a/src/main/java/net/minecraft/server/EntityLiving.java
++++ b/src/main/java/net/minecraft/server/EntityLiving.java
+@@ -470,7 +470,8 @@ public abstract class EntityLiving extends Entity {
+                 double d1 = this.random.nextGaussian() * 0.02D;
+                 double d2 = this.random.nextGaussian() * 0.02D;
+ 
+-                this.world.addParticle(Particles.POOF, this.d(1.0D), this.cE(), this.g(1.0D), d0, d1, d2);
++                if(co.chaoticpvp.ChaosConfig.deathParticles)
++                    this.world.addParticle(Particles.POOF, this.d(1.0D), this.cE(), this.g(1.0D), d0, d1, d2);
+             }
+         }
+ 

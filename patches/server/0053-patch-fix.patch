@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: matt-harp <53673965+matt-harp@users.noreply.github.com>
+Date: Thu, 6 Aug 2020 22:40:36 -0500
+Subject: [PATCH] patch fix
+
+
+diff --git a/src/main/java/net/minecraft/server/Explosion.java b/src/main/java/net/minecraft/server/Explosion.java
+index 571e81473e7d74e5fe117d462f4a4139f4b616bb..c445ab9bae290075766c682b187dd8038200ae97 100644
+--- a/src/main/java/net/minecraft/server/Explosion.java
++++ b/src/main/java/net/minecraft/server/Explosion.java
+@@ -135,7 +135,7 @@ public class Explosion {
+                             }
+ 
+                             // Chaos start
+-                            if (iblockdata.get(BlockProperties.C) && co.chaoticpvp.ChaosConfig.tntDrainsWaterlogged) {
++                            if (iblockdata.b(BlockProperties.C) && co.chaoticpvp.ChaosConfig.tntDrainsWaterlogged) {
+                                 iblockdata = iblockdata.set(BlockProperties.C, false);
+                                 world.setTypeAndData(blockposition, iblockdata, 3);
+                             }
